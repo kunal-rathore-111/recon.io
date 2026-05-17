@@ -104,5 +104,6 @@ export async function signInAction(prevState: any, formData: FormData) {
 
 export async function signOutAction() {
     await deleteSession();
-    redirect('/');
+    redirect('/?logout=true');
+
 }

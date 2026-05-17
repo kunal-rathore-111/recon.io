@@ -1,8 +1,29 @@
+"use client"
+
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, Suspense } from "react";
+import { toast } from "sonner";
+
+function HomeContent() {
+  const searchParam = useSearchParams();
+  const logout = searchParam.get('logout');
+  const hasShownToast = useRef(false);
+  useEffect(() => {
+    if (logout && logout === "true" && !hasShownToast.current) {
+      toast.success("Log out successfully");
+      hasShownToast.current = true;
+    }
+  }, [logout]);
+  return null;
+}
 
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <Suspense fallback={null}>
+        <HomeContent />
+      </Suspense>
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         <Image
           className="dark:invert"

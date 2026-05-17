@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface LegalState {
+export interface LegalState {
   isOpen: boolean;
   content: 'terms' | 'privacy' | null;
 }
