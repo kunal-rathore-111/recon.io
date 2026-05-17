@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { startTransition, useActionState, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { useDispatch } from "react-redux"
 import { openLegalModal } from "@/lib/store/features/legal/legalSlice"
+import { signInAction, signUpAction } from "@/app/actions/auth"
+import { Loader2 } from "lucide-react"
 
 export function SignForm({
   className,
@@ -28,7 +30,9 @@ export function SignForm({
 
   const dispatch = useDispatch();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [state, formAction, isPending] = useActionState(mode === "signup" ? signUpAction : signInAction, null);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
 
@@ -37,8 +41,11 @@ export function SignForm({
       return
     }
 
-    // Handle authentication logic here
-    console.log(`${mode === "signup" ? "Signing up" : "Signing in"}...`)
+    // now signin or signup call
+    const formData = new FormData(e.currentTarget);
+
+
+    startTransition(() => formAction(formData))
   }
 
   return (
@@ -61,6 +68,7 @@ export function SignForm({
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
@@ -82,6 +90,7 @@ export function SignForm({
                     <Input
                       id="password"
                       type="password"
+                      name="password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -108,10 +117,18 @@ export function SignForm({
                     Must be at least 8 characters long.
                   </FieldDescription>
                 )}
+                {
+                  state?.error && <p className="text-red-500">
+                    {state.error}
+                  </p>
+                }
               </Field>
+
               <Field>
-                <Button type="submit" className="w-full">
-                  {mode === "signup" ? "Create Account" : "Login"}
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? <Loader2 /> :
+                    mode === "signup" ?
+                      "Create Account" : "Login"}
                 </Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
@@ -153,10 +170,12 @@ export function SignForm({
                 </Link>
               </FieldDescription>
             </FieldGroup>
+
+
           </form>
           <div className="relative hidden bg-muted md:block">
             <img
-              src="/placeholder.svg"
+              src="/auth-bg.png"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />

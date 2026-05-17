@@ -5,10 +5,12 @@ import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar } from "drizzle
 export const UsersTable = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
     email: text("email").notNull().unique(),
+    passwordHash: text("passwordHash").notNull(),
     name: text("name"),
     avatarUrl: text("avatarUrl"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
 
 // Recon Table (The Missions)
 export const ReconTable = pgTable("reconTable", {
@@ -25,7 +27,7 @@ export const ReconTable = pgTable("reconTable", {
     updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-// Recon Snapshots Table (The History of missions)
+// Recon Snapshots Table - (The History of missions)
 export const ReconSnapshotsTable = pgTable("reconSnapshotsTable", {
     id: uuid("id").primaryKey().defaultRandom(),
     reconId: uuid("reconId").references(() => ReconTable.id, { onDelete: "cascade" }).notNull(),
