@@ -2,20 +2,19 @@
 
 import * as React from 'react'
 import {
-    ArrowRightLeftIcon,
-    CalendarClockIcon,
+    Blocks,
     ChartNoAxesCombinedIcon,
-    ChartPieIcon,
-    ChartSplineIcon,
-    ClipboardListIcon,
-    Clock9Icon,
-    CrownIcon,
-    HashIcon,
-    SettingsIcon,
-    SquareActivityIcon,
-    Undo2Icon,
-    UsersIcon
+    ChevronDown,
+    Globe,
+    Globe2,
+    LucideHome,
+    LucideIcon,
+    Newspaper,
+    PlugZap,
+    ShoppingBag,
 } from 'lucide-react'
+
+
 
 import {
     Sidebar,
@@ -23,13 +22,25 @@ import {
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { reconDataResponseType } from '@/app/actions/getRecons'
+import Link from 'next/link'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './ui/dropdown-menu'
+import { useDispatch } from 'react-redux'
+import { setLongSelectedCard } from '@/lib/store/features/ui/uiSlice'
+import { trimString } from './dashboardComps/CardComp'
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+    recons: reconDataResponseType[];
+}
+
+
+export function DashboardSidebar({ recons }: DashboardSidebarProps) {
     const [mounted, setMounted] = React.useState(false)
 
     React.useEffect(() => {
@@ -64,25 +75,111 @@ export function DashboardSidebar() {
         )
     }
 
+    const reconsByType = {
+        ecommerce: [] as typeof recons,
+        saas: [] as typeof recons,
+        blog: [] as typeof recons,
+        api: [] as typeof recons,
+        custom: [] as typeof recons,
+    }
+    // now push based on type
+
+    recons.forEach((recon) => {
+        const typeKey = recon.type as keyof typeof reconsByType;
+        if (typeKey in reconsByType) reconsByType[typeKey].push(recon);
+        // if key is something else than 5 then push as custom
+        else reconsByType['custom'].push(recon);
+    })
+
+
     return (
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <a href='#'>
-                                        <ChartNoAxesCombinedIcon />
-                                        <span>Recon Dashboard</span>
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            <SidebarHeader >
+
+                                <div className='flex justify-between  items-center'>
+                                    <SidebarMenuButton asChild
+                                        onClick={() => scrollTo({ top: 0, behavior: "smooth" })}>
+                                        <span>
+                                            <ChartNoAxesCombinedIcon />
+                                            <span>Recon Dashboard</span>
+                                        </span>
+                                    </SidebarMenuButton>
+                                    <SidebarMenuButton className='w-fit'
+                                        asChild >
+                                        <Link href={'/'}>
+                                            <LucideHome />
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </div>
+                            </SidebarHeader>
+                            <hr />
+                            <SidebarContent className='pl-4 mt-5 space-y-3' >
+
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='ecommerce' Icon={ShoppingBag} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='saas' Icon={Blocks} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='api' Icon={PlugZap} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='blog' Icon={Newspaper} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='custom' Icon={Globe2} />
+                            </SidebarContent>
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-        </Sidebar>
+        </Sidebar >
     )
 }
 
+
+
+
+interface reconsByTypeInterface {
+    ecommerce: reconDataResponseType[];
+    saas: reconDataResponseType[];
+    blog: reconDataResponseType[];
+    api: reconDataResponseType[];
+    custom: reconDataResponseType[];
+}
+interface RenderTypesDropDownComp {
+    type: "ecommerce" | "saas" | "blog" | "api" | "custom",
+    reconsByType: reconsByTypeInterface,
+    Icon: LucideIcon
+}
+
+
+
+
+function RenderTypesDropDownComp({ reconsByType, type, Icon }: RenderTypesDropDownComp) {
+
+    const dispatch = useDispatch();
+
+    return <DropdownMenu >
+        <DropdownMenuTrigger asChild className='group'>
+            <div className='flex gap-2 border p-2 rounded capitalize cursor-pointer'>
+                <Icon size={16} />
+                {type}
+                <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" size={17} />
+            </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className='text-xs '>
+            {
+                reconsByType[type].length > 0 ?
+                    reconsByType[type].map((recon, idx) => {
+                        const TrimmedTitle = trimString(recon.title)
+                        return <div
+                            key={recon.id}
+                            className='p-1 cursor-pointer border-b ' onClick={() => dispatch(setLongSelectedCard(recon))}>
+                            {idx + 1}.   {TrimmedTitle}
+                        </div>
+                    }) :
+                    <div className='p-1'>
+                        No content Available
+                    </div>
+            }
+        </DropdownMenuContent>
+
+    </DropdownMenu>
+}

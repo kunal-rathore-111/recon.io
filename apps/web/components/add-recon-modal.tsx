@@ -34,6 +34,7 @@ import { RootState } from '@/lib/store/store';
 import { setAddReconReducer } from '@/lib/store/features/addRecon/addReconSlice';
 import { FormEvent, startTransition, useActionState, useEffect, useState } from 'react';
 import { addReconAction } from '@/app/actions/addRecon';
+import { useRouter } from 'next/navigation';
 
 const CATEGORIES = [
   { id: 'ecommerce', label: 'E-Commerce', icon: ShoppingBag },
@@ -53,40 +54,38 @@ export function AddReconModal() {
   const [mission, setMission] = useState('');
   const [type, setType] = useState('custom');
   const [intelligenceEnabled, setIntelligenceEnabled] = useState(true);
-
+  const router = useRouter();
   //form state
   const [state, formAction, isPending] = useActionState(addReconAction, null);
 
-  // UI states
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!state) return; // initial state, skip
 
     if (state.error) {
       toast.error(state.error);
-      setIsSubmitting(false);
     } else if (state.sucess) {
       toast.success('Target set up successfully!', {
         description: `Monitoring started for ${url}`,
         icon: <CheckCircle2 className="text-emerald-500 size-5" />
       });
 
-      // re clearing instead of using handleclose cause the function executes before state of isSubmitting becomes false which skips closing the form
-      setIsSubmitting(false);
+      // Reseting form states on close
       setUrl('');
       setTitle('');
       setMission('');
       setType('custom');
       setIntelligenceEnabled(true);
       dispatch(setAddReconReducer());
+
+      router.refresh();
     }
   }, [state]);
 
 
 
   const handleClose = () => {
-    if (!isSubmitting) {
+    if (!isPending) {
       dispatch(setAddReconReducer());
       // Reseting form states on close
       setUrl('');
@@ -108,7 +107,6 @@ export function AddReconModal() {
       return;
     }
 
-    setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
     startTransition(() => formAction(formData));
   };
@@ -152,7 +150,7 @@ export function AddReconModal() {
                   onChange={(e) => setUrl(e.target.value)}
                   className="pl-9 h-10 border-border/60 placeholder:text-muted-foreground/60 focus-visible:ring-primary/25 focus-visible:border-primary bg-background/40"
                   required
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-medium select-none pointer-events-none">
                   <Globe className="size-4" />
@@ -181,7 +179,7 @@ export function AddReconModal() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="h-10 border-border/60 placeholder:text-muted-foreground/60 focus-visible:ring-primary/25 focus-visible:border-primary bg-background/40"
-                disabled={isSubmitting}
+                disabled={isPending}
               />
             </div>
 
@@ -201,7 +199,7 @@ export function AddReconModal() {
                       key={cat.id}
                       type="button"
                       onClick={() => setType(cat.id)}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all select-none ${isSelected
                         ? 'bg-primary border-primary text-primary-foreground shadow-md shadow-primary/15 scale-[1.02]'
                         : 'border-border/60 hover:border-border bg-background/30 hover:bg-muted/40 text-muted-foreground hover:text-foreground'
@@ -233,14 +231,14 @@ export function AddReconModal() {
                 value={mission}
                 onChange={(e) => setMission(e.target.value)}
                 className="w-full rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground/60 focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/25 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-muted/50 disabled:opacity-50"
-                disabled={isSubmitting}
+                disabled={isPending}
               />
             </div>
 
             {/* AI Intelligence Toggle Card */}
             <div className="pt-2">
               <div
-                onClick={() => !isSubmitting && setIntelligenceEnabled(!intelligenceEnabled)}
+                onClick={() => !isPending && setIntelligenceEnabled(!intelligenceEnabled)}
                 className={`flex gap-3 p-3.5 rounded-xl border transition-all cursor-pointer select-none ${intelligenceEnabled
                   ? 'border-primary/40 bg-primary/5 hover:bg-primary/10 shadow-sm shadow-primary/5'
                   : 'border-border/60 hover:border-border bg-background/20 hover:bg-muted/20'
@@ -275,17 +273,17 @@ export function AddReconModal() {
               type="button"
               variant="ghost"
               onClick={handleClose}
-              disabled={isSubmitting}
+              disabled={isPending}
               className="text-muted-foreground font-bold hover:text-foreground border text-xs border-black"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isPending}
               className="relative shadow-lg shadow-primary/15 min-w-[140px] text-xs font-semibold"
             >
-              {isSubmitting ? (
+              {isPending ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin mr-2" />
                   Deploying Agent...

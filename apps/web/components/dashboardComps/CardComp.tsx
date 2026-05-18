@@ -1,19 +1,63 @@
 "use client"
 
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
-import { Globe, Brain, Clock, Trash2, ExternalLink } from "lucide-react"
+import { Globe, Brain, Clock, Trash2 } from "lucide-react"
 import type { reconDataResponseType } from "@/app/actions/getRecons"
 import Link from "next/link"
 import { useDispatch } from "react-redux"
 import { setLongSelectedCard } from "@/lib/store/features/ui/uiSlice"
+import { Switch } from "../ui/switch"
+import { useTransition } from "react"
+import { deleteReconAction } from "@/app/actions/deleteRecon"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { ToggleIntelligenceAction } from "@/app/actions/toggleIntelligence"
 
 
-function trimString(str: string) {
-    return str.trim().slice(0, 34) + '...'
+export function trimString(str: string) {
+    if (str.length < 30) return str;
+    return str.trim().slice(0, 30) + '...'
 }
 
 export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
+
     const dispatch = useDispatch();
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+    function handleDelete(reconId: string) {
+
+        const confirmed = confirm("Are you sure to delete this target?");
+        if (!confirmed) return;
+        startTransition(async () => {
+            const result = await deleteReconAction(reconId);
+            if (result.success) {
+                toast.success("Target deleted successfully!");
+
+                router.refresh();
+            }
+            else {
+                toast.error(result.error);
+            }
+        })
+    }
+
+
+    function handleAIToggle(recondId: string, isEnabled: boolean) {
+        startTransition(async () => {
+
+            const nextState = !isEnabled;
+            const response = await ToggleIntelligenceAction(recondId, nextState)//if true then set to false;
+
+            if (response.error) {
+                toast.error(response.error);
+                return;
+            }
+            else {
+                toast.success(`AI Intelligence turned ${nextState ? "on" : "off"}!`);
+                router.refresh();
+            }
+        })
+    }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
@@ -23,13 +67,13 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                 return (
                     <Card
                         key={recon.id}
-                        className="relative overflow-hidden border border-border/40 bg-card hover:bg-accent/5 hover:border-border/80 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between group cursor-pointer"
-                        onClick={() => dispatch(setLongSelectedCard(recon))}
+                        className="relative overflow-hidden border border-border/40 bg-card hover:bg-accent/5 hover:border-border/80 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between group "
+
                     >
 
                         <CardHeader >
                             <div className="flex-1 min-w-0">
-                                <CardTitle className="text-lg flex justify-between font-semibold tracking-tight text-foreground truncate group-hover:text-primary transition-colors">
+                                <CardTitle className="text-[17px] flex justify-between font-semibold tracking-tight text-foreground truncate group-hover:text-primary transition-colors">
 
                                     <h1>  {TrimmedTitle ?? "Untitled"}</h1>
 
@@ -44,7 +88,8 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                                         </Link>
                                         <button
                                             className=" text-red-500 cursor-pointer"
-                                            onClick={(e) => e.stopPropagation()}
+                                            disabled={isPending}
+                                            onClick={() => handleDelete(recon.id)}
                                         >
                                             <Trash2 className="size-4" />
                                         </button>
@@ -53,7 +98,7 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                             </div>
                         </CardHeader>
 
-                        <CardContent className="flex-1">
+                        <CardContent className="flex-1 cursor-pointer" onClick={() => dispatch(setLongSelectedCard(recon))}>
                             <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
                                 {recon.mission ?? "No mission set"}
                             </p>
@@ -69,35 +114,13 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                                         AI {isAI ? "On" : "Off"}
                                     </span>
                                 </div>
+                                <Switch checked={isAI} onClick={() => handleAIToggle(recon.id, isAI)} disabled={isPending} />
 
-                                <label className="relative inline-flex items-center cursor-pointer select-none">
-                                    <input
-                                        type="checkbox"
-                                        checked={isAI}
-                                        readOnly
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-8 h-4 rounded-full bg-muted border border-border peer-focus:outline-none transition-all duration-300 peer-checked:bg-gradient-to-r peer-checked:from-violet-500 peer-checked:to-indigo-500 peer-checked:border-transparent">
-                                        <div className={`w-3.5 h-3.5 rounded-full bg-background border border-border/40 shadow-sm transition-transform duration-300 ease-out ${isAI ? "transform translate-x-3.5" : "transform translate-x-0"}`} />
-                                    </div>
-                                </label>
                             </div>
 
-                            {/* Link */}
-                            <div className="flex items-center gap-3 font-medium" onClick={(e) => e.stopPropagation()}>
-                                <a
-                                    href={recon.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="underline hover:text-primary transition-colors cursor-pointer flex items-center gap-0.5"
-                                >
-                                    Link
-                                    <ExternalLink className="size-3" />
-                                </a>
-                                <div className="flex items-center gap-1">
-                                    <Clock className="size-3" />
-                                    {new Date(recon.createdAt).toLocaleDateString()}
-                                </div>
+                            <div className="flex items-center gap-1">
+                                <Clock className="size-3" />
+                                {new Date(recon.createdAt).toLocaleDateString()}
                             </div>
                         </CardFooter>
                     </Card>

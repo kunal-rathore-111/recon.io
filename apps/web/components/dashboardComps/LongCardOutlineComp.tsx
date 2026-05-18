@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react";
+import { useMemo, useTransition } from "react";
 import { useDispatch } from "react-redux";
 import { setLongSelectedCard } from "@/lib/store/features/ui/uiSlice";
 import type { reconDataResponseType } from "@/app/actions/getRecons";
@@ -21,6 +21,11 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "../ui/switch";
+import { useRouter } from "next/navigation";
+import { deleteReconAction } from "@/app/actions/deleteRecon";
+import { toast } from "sonner";
+import { ToggleIntelligenceAction } from "@/app/actions/toggleIntelligence";
 
 const CATEGORY_MAP = {
     ecommerce: {
@@ -70,12 +75,48 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
         dispatch(setLongSelectedCard(null));
     };
 
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+
+    function handleDelete(reconId: string) {
+
+        const confirmed = confirm('Are you sure to delete this target?');
+        if (!confirmed) return;
+        else {
+            startTransition(async () => {
+                const result = await deleteReconAction(reconId);
+                if (result.success) {
+                    toast.success("Target deleted successfully.");
+                    handleClose();
+                    router.refresh();
+
+                }
+                else {
+                    toast.error(result.error);
+                }
+            })
+        }
+    }
+
+    function handleAItoggle(recondId: string, isEnabled: boolean) {
+        const nextState = !isEnabled;
+        startTransition(async () => {
+            const response = await ToggleIntelligenceAction(recondId, nextState);
+            if (response.error) {
+                toast.error(response.error);
+                return;
+            }
+            else {
+                toast.success(`AI Intelligence turned ${nextState ? "on" : "off"}!`);
+                router.refresh();
+                handleClose();
+            }
+        })
+    }
+
     return (
         <Card className="relative w-full border border-border/40 bg-card/65 backdrop-blur-xl shadow-2xl flex flex-col justify-between overflow-y-hidden  group max-w-2xl mx-auto">
 
-            {/* Ambient background glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10 group-hover:bg-primary/10 transition-all duration-700" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-violet-500/5 rounded-full blur-3xl -z-10 group-hover:bg-violet-500/10 transition-all duration-700" />
 
             <CardHeader className="border-b border-border/40 bg-accent/5 pb-4">
                 <div className="flex items-start justify-between gap-4">
@@ -85,17 +126,29 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                                 <CategoryIcon className="size-3.5" />
                                 {categoryInfo.label}
                             </Badge>
+
                             <Badge variant="outline" className={`flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold ${isEnabled ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"}`}>
+
                                 <span className={`size-1.5 rounded-full ${isEnabled ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
+
                                 {isEnabled ? "Active" : "Paused"}
                             </Badge>
                         </div>
-                        <CardTitle className="text-xl md:text-2xl font-bold tracking-tight text-foreground leading-tight break-words">
+                        <CardTitle className="text-xl pt-2 md:text-xl font-bold tracking-tight text-foreground  break-all whitespace-normal px-2
+                        ">
+
                             {selectedCardData.title || "Untitled Target"}
+
                         </CardTitle>
-                        <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium mt-1">
+
+                        <CardDescription className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium mt-2">
+
                             <Clock className="size-3.5" />
-                            ID: <span className="font-mono text-[10px] bg-accent/20 px-1.5 py-0.5 rounded border border-border/40 select-all">{selectedCardData.id}</span>
+                            ID:
+                            <span className="font-mono text-[10px] bg-accent/20 px-1.5 py-0.5 rounded border border-border/40 select-all">
+                                {selectedCardData.id}
+                            </span>
+
                         </CardDescription>
                     </div>
                     <Button
@@ -109,7 +162,7 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                 </div>
             </CardHeader>
 
-            <CardContent className="space-y-6 pt-6 overflow-scroll pb-20 ">
+            <CardContent className="space-y-6 pt-3 overflow-scroll mb-18 overflow-x-hidden ">
                 {/* Target URL Info Box */}
                 <div className="space-y-2">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1.5">
@@ -137,7 +190,7 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                     </h3>
                     <div className="p-4 rounded-xl border border-border/40 bg-accent/10 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-xl pointer-events-none" />
-                        <p className="text-sm text-foreground leading-relaxed font-medium whitespace-pre-wrap">
+                        <p className="text-sm text-foreground leading-relaxed font-medium  break-all whitespace-normal">
                             {selectedCardData.mission || "No extraction instructions provided for this target."}
                         </p>
                     </div>
@@ -150,7 +203,8 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                         AI Agent Intelligence
                     </h3>
 
-                    <div className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isAI ? 'border-violet-500/30 bg-violet-500/5' : 'border-border/40 bg-accent/5'}`}>
+                    <div className={`flex items-center cursor-pointer justify-between p-4 rounded-xl border transition-all ${isAI ? 'border-violet-500/30 bg-violet-500/5' : 'border-border/40 bg-accent/5'}`}
+                        onClick={() => handleAItoggle(selectedCardData.id, isAI)} >
                         <div className="flex items-center gap-3">
                             <div>
                                 <h4 className="text-sm font-semibold text-foreground">
@@ -160,17 +214,7 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                             </div>
                         </div>
 
-                        <label className="relative inline-flex items-center cursor-pointer select-none shrink-0">
-                            <input
-                                type="checkbox"
-                                checked={isAI}
-                                readOnly
-                                className="sr-only peer"
-                            />
-                            <div className="w-10 h-5 rounded-full bg-muted border border-border peer-focus:outline-none transition-all duration-300 peer-checked:bg-gradient-to-r peer-checked:from-violet-500 peer-checked:to-indigo-500 peer-checked:border-transparent">
-                                <div className={`w-4 h-4 rounded-full bg-background border border-border/40 shadow-sm transition-transform duration-300 ease-out ${isAI ? "transform translate-x-5" : "transform translate-x-0"}`} />
-                            </div>
-                        </label>
+                        <Switch checked={isAI} disabled={isPending} />
                     </div>
                 </div>
 
@@ -210,7 +254,9 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                 <Button
                     variant="destructive"
                     size="sm"
-                    className="text-xs font-semibold gap-1.5 cursor-pointer shadow-md shadow-destructive/10 hover:shadow-destructive/20 transition-all duration-300"
+                    className="text-xs font-semibold gap-1.5 cursor-pointer shadow-md  transition-all duration-400"
+                    disabled={isPending}
+                    onClick={() => handleDelete(selectedCardData.id)}
                 >
                     <Trash2 className="size-3.5" />
                     Delete Target

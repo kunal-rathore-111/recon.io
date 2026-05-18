@@ -1,3 +1,6 @@
+
+"use server"
+
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { DashboardSidebar } from '@/components/dashboard-sidebar'
 import { DashboardNavbar } from '@/components/dashboard-navbar'
@@ -20,8 +23,8 @@ export default async function Dashboard() {
 
     return (
         <div className='flex min-h-dvh w-full'>
-            <SidebarProvider>
-                <DashboardSidebar />
+            <SidebarProvider >
+                <DashboardSidebar recons={recons} />
                 <div className='flex flex-1 flex-col'>
                     <DashboardNavbar />
                     <main className={cn(' mx-auto size-full max-w-7xl flex-1 px-4 py-6 sm:px-6 flex justify-center min-h-[60vh]', recons ? 'items-start' : 'items-center')} >
@@ -53,7 +56,7 @@ export default async function Dashboard() {
 
             {/* add Recon card/form */}
             < AddReconModal />
-            
+
             {/* detailed Recon card viewer */}
             < LongCardSheet />
         </div >

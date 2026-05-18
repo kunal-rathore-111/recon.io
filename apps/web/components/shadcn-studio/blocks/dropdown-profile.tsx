@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { signOutAction } from '@/app/actions/auth'
-import { toast } from 'sonner'
 
 type Props = {
   trigger: ReactNode
