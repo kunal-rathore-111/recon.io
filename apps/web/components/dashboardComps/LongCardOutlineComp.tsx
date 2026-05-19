@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { deleteReconAction } from "@/app/actions/deleteRecon";
 import { toast } from "sonner";
 import { ToggleIntelligenceAction } from "@/app/actions/toggleIntelligence";
+import { setReconHistory } from "@/lib/store/features/reconHistory/reconHistorySlice";
 
 const CATEGORY_MAP = {
     ecommerce: {
@@ -71,7 +72,7 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
     const isEnabled = selectedCardData.status === "enabled";
     const CategoryIcon = categoryInfo.icon;
 
-    const handleClose = () => {
+    function handleClose() {
         dispatch(setLongSelectedCard(null));
     };
 
@@ -112,6 +113,11 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                 handleClose();
             }
         })
+    }
+
+    function handleHistory(recondId: string) {
+
+
     }
 
     return (
@@ -245,10 +251,18 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                 <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleClose}
+                    onClick={() => handleClose()}
                     className="text-xs font-semibold cursor-pointer border-border/60 hover:bg-accent/40"
                 >
                     Back to Grid
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => dispatch(setReconHistory(selectedCardData.id))}
+                    className="text-xs font-semibold cursor-pointer border-border/60 hover:bg-accent/40"
+                >
+                    History
                 </Button>
 
                 <Button

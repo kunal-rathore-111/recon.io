@@ -10,6 +10,7 @@ import { getReconsAction, } from '../actions/getRecons'
 import { ToastComp } from '@/components/toastComp'
 import { CardComp } from '@/components/dashboardComps/CardComp'
 import { LongCardSheet } from '@/components/dashboardComps/LongCardSheet'
+import { ReconHistorySheet } from '@/components/dashboardComps/ReconHistorySheet'
 import { cn } from '@/lib/utils'
 
 
@@ -20,7 +21,6 @@ export default async function Dashboard() {
     const response = await getReconsAction();
     const recons = response.data ?? [];
 
-
     return (
         <div className='flex min-h-dvh w-full'>
             <SidebarProvider >
@@ -28,7 +28,6 @@ export default async function Dashboard() {
                 <div className='flex flex-1 flex-col'>
                     <DashboardNavbar />
                     <main className={cn(' mx-auto size-full max-w-7xl flex-1 px-4 py-6 sm:px-6 flex justify-center min-h-[60vh]', recons ? 'items-start' : 'items-center')} >
-
 
                         {/* if error in response then show using ToastComp */}
                         {
@@ -59,6 +58,9 @@ export default async function Dashboard() {
 
             {/* detailed Recon card viewer */}
             < LongCardSheet />
+
+            {/* Recon history timeline viewer */}
+            <ReconHistorySheet />
         </div >
     )
 }

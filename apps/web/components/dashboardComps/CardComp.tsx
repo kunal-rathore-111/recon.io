@@ -12,11 +12,12 @@ import { deleteReconAction } from "@/app/actions/deleteRecon"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ToggleIntelligenceAction } from "@/app/actions/toggleIntelligence"
+import { setReconHistory } from "@/lib/store/features/reconHistory/reconHistorySlice"
 
 
 export function trimString(str: string) {
-    if (str.length < 30) return str;
-    return str.trim().slice(0, 30) + '...'
+    if (str.length < 24) return str;
+    return str.trim().slice(0, 24) + '...'
 }
 
 export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
@@ -74,10 +75,13 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                         <CardHeader >
                             <div className="flex-1 min-w-0">
                                 <CardTitle className="text-[17px] flex justify-between font-semibold tracking-tight text-foreground truncate group-hover:text-primary transition-colors">
+                                    <button className="text-xs p-1 rounded border-zinc-600  hover:shadow-[0_3px_3px_rgb(2,5,0,0.2)] shadow-black transition-all duration-300 border cursor-pointer"
+                                        onClick={() =>
+                                            dispatch(setReconHistory(recon.id))}>
+                                        History
+                                    </button>
+                                    <div className="flex items-center gap-3 justify-end">
 
-                                    <h1>  {TrimmedTitle ?? "Untitled"}</h1>
-
-                                    <div className="flex items-center gap-3">
                                         <Link
                                             href={recon.url}
                                             target="_blank"
@@ -99,6 +103,7 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                         </CardHeader>
 
                         <CardContent className="flex-1 cursor-pointer" onClick={() => dispatch(setLongSelectedCard(recon))}>
+                            <h1 className="text-xl">  {TrimmedTitle ?? "Untitled"}</h1>
                             <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
                                 {recon.mission ?? "No mission set"}
                             </p>
