@@ -15,6 +15,13 @@
       "when": 1778991387181,
       "tag": "0001_cheerful_meteorite",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781370763905,
+      "tag": "0002_strange_virginia_dare",
+      "breakpoints": true
     }
   ]
 }

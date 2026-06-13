@@ -1,7 +1,7 @@
 import z from "zod";
 
 
-export const signSchema = z.object({
+export const signInSchema = z.object({
     email: z.email()
         .min(4, { message: "Email must have atleast 4 characters" })
         .max(199, { message: "The length of email cannot exceed 199 characters" }),
@@ -13,9 +13,21 @@ export const signSchema = z.object({
         .regex(/[$#@!&^*]/, { message: "password must include a special case character" })
 })
 
-interface SignValidationFnInput {
+export const signUpSchema = signInSchema.extend({
+    userFullName: z.string().min(3, { message: "Full name must have atleast 3 characters" })
+        .max(1000, { message: "The length of Full name cannot exceed 1000 characters" })
+})
+
+interface SignInValidationFnInput {
     email: string, password: string
 }
-export function signValidationFn(props: SignValidationFnInput) {
-    return signSchema.safeParse(props);
+export function signInValidationFn(props: SignInValidationFnInput) {
+    return signInSchema.safeParse(props);
+}
+
+interface SignUpValidationFnInput extends SignInValidationFnInput {
+    userFullName: string
+}
+export function signUpValidationFn(props: SignUpValidationFnInput) {
+    return signUpSchema.safeParse(props);
 }

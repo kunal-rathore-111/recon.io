@@ -247,7 +247,7 @@ export function LongCardOutlineComp({ selectedCardData }: LongCardOutlineCompPro
                 </div>
             </CardContent>
 
-            <CardFooter className="absolute bottom-0 w-full bg-white border-t border-border/40  py-4 flex items-center justify-between">
+            <CardFooter className="absolute bottom-0 w-full bg-white dark:bg-black border-t border-border/40  py-4 flex items-center justify-between">
                 <Button
                     variant="outline"
                     size="sm"

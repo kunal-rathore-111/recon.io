@@ -6,7 +6,8 @@ import { cookies } from "next/headers";
 
 interface jwtInput {
     email: string,
-    userId: string
+    userId: string,
+    userFullName: string
 }
 const jwtSecret = process.env.JWT_SECRET || "#!D#G%,kl3I";
 

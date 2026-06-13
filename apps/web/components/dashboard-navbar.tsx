@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Plus } from 'lucide-react'
+import { Plus, XIcon } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -19,9 +19,22 @@ import ProfileDropdown from '@/components/shadcn-studio/blocks/dropdown-profile'
 import { AnimatedThemeToggler } from './ui/animated-theme-toggler'
 import { setAddReconReducer } from '@/lib/store/features/addRecon/addReconSlice'
 import { useDispatch } from 'react-redux'
+import { Input } from './ui/input'
+import { ButtonGroup } from './ui/button-group'
+import { useState } from 'react'
+import { redirect } from 'next/navigation'
+import { InputGroup, InputGroupAddon, InputGroupInput } from './ui/input-group'
+
+
 
 export function DashboardNavbar() {
     const dispatch = useDispatch();
+    const [searchValue, setSearchValue] = useState<string>("");
+
+
+    function handleSearch(searchValue: string) {
+        redirect(`/dashboard/?search=${searchValue}`);
+    }
     return (
         <header className='bg-card sticky top-0 z-50 border-b'>
             <div className='mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-2 sm:px-6'>
@@ -37,9 +50,35 @@ export function DashboardNavbar() {
                             <BreadcrumbPage>
                                 <BreadcrumbLink >Dashboard</BreadcrumbLink>
                             </BreadcrumbPage>
-
                         </BreadcrumbList>
                     </Breadcrumb>
+                </div>
+                <div>
+                    <ButtonGroup>
+                        <InputGroup >
+                            <InputGroupAddon align={"inline-end"}>
+                                {searchValue &&
+                                    <div className='cursor-pointer'
+                                        onClick={() => {
+                                            setSearchValue('');
+                                            handleSearch('');
+                                        }}>
+                                        <XIcon size={15} />
+                                    </div>}
+                            </InputGroupAddon>
+                            <Input id="input-button-group" placeholder="Search here"
+                                className='border-0 focus:border-0 '
+                                onChange={(e) => {
+                                    setSearchValue(e.target.value);
+                                    handleSearch(e.target.value)
+                                }}
+                                onKeyDown={(e) =>
+                                    (e.key === 'Enter') && handleSearch(searchValue)}
+                                value={searchValue} />
+                        </InputGroup>
+                        <Button variant="outline"
+                            onClick={() => handleSearch(searchValue)}>Search</Button>
+                    </ButtonGroup>
                 </div>
                 <div className='flex items-center gap-4 justify-center'>
                     <button className='bg-zinc-800 text-white p-2 rounded text-sm flex items-center gap-0.5 dark:text-black dark:bg-zinc-300'

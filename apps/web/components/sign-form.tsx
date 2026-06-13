@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { useDispatch } from "react-redux"
 import { openLegalModal } from "@/lib/store/features/legal/legalSlice"
 import { signInAction, signUpAction } from "@/app/actions/auth"
-import { Loader2 } from "lucide-react"
+import { LoaderIcon } from "./animated-icons/LoaderIcon"
 
 export function SignForm({
   className,
@@ -24,6 +24,7 @@ export function SignForm({
   ...props
 }: React.ComponentProps<"div"> & { mode: "signin" | "signup" }) {
   const [email, setEmail] = useState("")
+  const [userFullName, setUserFullName] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("");
@@ -35,7 +36,6 @@ export function SignForm({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
-
     if (mode === "signup" && password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -43,7 +43,6 @@ export function SignForm({
 
     // now signin or signup call
     const formData = new FormData(e.currentTarget);
-
 
     startTransition(() => formAction(formData))
   }
@@ -60,10 +59,27 @@ export function SignForm({
                 </h1>
                 <p className="text-sm text-balance text-muted-foreground">
                   {mode === "signup"
-                    ? "Enter your email below to create your account"
+                    ? "Enter your details below to create your account"
                     : "Enter your email below to login to your account"}
                 </p>
               </div>
+              {mode === 'signup' &&
+                <Field>
+                  <FieldLabel htmlFor="userFullName">
+                    Full name
+                  </FieldLabel>
+                  <Input
+                    id="userFullName"
+                    name="userFullName"
+                    type="text"
+                    placeholder="Your full name"
+                    required
+                    value={userFullName}
+                    onChange={(e) => setUserFullName(e.target.value)}
+                  />
+                </Field>
+              }
+
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -126,7 +142,7 @@ export function SignForm({
 
               <Field>
                 <Button type="submit" className="w-full" disabled={isPending}>
-                  {isPending ? <Loader2 /> :
+                  {isPending ? <LoaderIcon /> :
                     mode === "signup" ?
                       "Create Account" : "Login"}
                 </Button>

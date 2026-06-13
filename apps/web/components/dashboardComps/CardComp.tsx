@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ToggleIntelligenceAction } from "@/app/actions/toggleIntelligence"
 import { setReconHistory } from "@/lib/store/features/reconHistory/reconHistorySlice"
+import { ChromeIcon } from "../animated-icons/ChromeIcon"
 
 
 export function trimString(str: string) {
@@ -80,7 +81,7 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                                             dispatch(setReconHistory(recon.id))}>
                                         History
                                     </button>
-                                    <div className="flex items-center gap-3 justify-end">
+                                    <div className="flex items-center gap-2 justify-end">
 
                                         <Link
                                             href={recon.url}
@@ -88,7 +89,7 @@ export function CardComp({ recons }: { recons: reconDataResponseType[] }) {
                                             rel="noopener noreferrer"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <Globe className="size-4" />
+                                            <ChromeIcon size={18} />
                                         </Link>
                                         <button
                                             className=" text-red-500 cursor-pointer"

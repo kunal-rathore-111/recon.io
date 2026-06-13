@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState, useTransition } from "react";
 import { fetchReconHistoryAction } from "@/app/actions/reconHistory";
 import { toast } from "sonner";
+import { LoaderIcon } from "../animated-icons/LoaderIcon";
 
 interface ReconHistoryOutlineCompProps {
     reconId: string;
@@ -90,7 +91,7 @@ export function ReconHistoryOutlineComp({ reconId }: ReconHistoryOutlineCompProp
                 {/* Loading State */}
                 {isPending ? (
                     <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                        <div className="size-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                        <LoaderIcon size={23} />
                         <p className="text-sm text-muted-foreground font-medium animate-pulse">
                             Fetching intelligence logs...
                         </p>
@@ -201,7 +202,7 @@ export function ReconHistoryOutlineComp({ reconId }: ReconHistoryOutlineCompProp
 
 
             {/* ── Footer ── */}
-            <CardFooter className="absolute bottom-0 w-full bg-white border-t border-border/40 py-4 flex items-center justify-between">
+            <CardFooter className="absolute bottom-0 w-full bg-white dark:bg-black border-t border-border/40 py-4 flex items-center justify-between">
                 <Button
                     variant="outline"
                     size="sm"

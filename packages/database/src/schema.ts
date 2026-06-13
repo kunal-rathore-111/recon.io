@@ -5,6 +5,7 @@ import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar } from "drizzle
 export const UsersTable = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
     email: text("email").notNull().unique(),
+    userFullName: text('userFullName').notNull(),
     passwordHash: text("passwordHash").notNull(),
     name: text("name"),
     avatarUrl: text("avatarUrl"),

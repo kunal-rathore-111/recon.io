@@ -3,7 +3,7 @@
 
 import { createSession, deleteSession } from "@/lib/session";
 import { db, UsersTable } from "@repo/database";
-import { signValidationFn } from "@repo/validation";
+import { signInValidationFn, signUpValidationFn } from "@repo/validation";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -14,8 +14,9 @@ import { redirect } from "next/navigation";
 
 export async function signUpAction(prevState: any, formData: FormData) {
     const email = formData.get('email') as string;
+    const userFullName = formData.get('userFullName') as string;
     const password = formData.get('password') as string;
-    const validation = signValidationFn({ email, password });
+    const validation = signUpValidationFn({ email, password, userFullName });
     if (!validation.success) {
 
         return {
@@ -33,7 +34,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
                 const hashedPass = await bcrypt.hash(password, 10);
 
                 const newUser = await db.insert(UsersTable).values({
-                    email, passwordHash: hashedPass
+                    userFullName, email, passwordHash: hashedPass
                 }).returning();
 
                 if (!newUser[0]) return { error: "Failed to create users" }
@@ -42,7 +43,8 @@ export async function signUpAction(prevState: any, formData: FormData) {
                     await createSession(
                         {
                             email: newUser[0].email,
-                            userId: newUser[0].id
+                            userId: newUser[0].id,
+                            userFullName: newUser[0].userFullName
                         }
                     )
                     redirect('/dashboard') // will throw error next-redirect
@@ -63,7 +65,7 @@ export async function signInAction(prevState: any, formData: FormData) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const validation = signValidationFn({
+    const validation = signInValidationFn({
         email,
         password
     })
@@ -87,8 +89,10 @@ export async function signInAction(prevState: any, formData: FormData) {
             else {
                 await createSession({
                     email: existingUser[0].email,
-                    userId: existingUser[0].id
+                    userId: existingUser[0].id,
+                    userFullName: existingUser[0].userFullName
                 });
+
                 redirect("/dashboard")
             }
         }

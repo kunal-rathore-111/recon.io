@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
-interface initialStateInterface {
+export interface initialStateInterface {
     reconHistoryState: string | null;
 }
 const initialState: initialStateInterface = { reconHistoryState: null };

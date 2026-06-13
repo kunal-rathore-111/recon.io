@@ -102,7 +102,7 @@ export function DashboardSidebar({ recons }: DashboardSidebarProps) {
 
                                 <div className='flex justify-between  items-center'>
                                     <SidebarMenuButton asChild
-                                        onClick={() => scrollTo({ top: 0, behavior: "smooth" })}>
+                                        onClick={() => scrollTo({ top: 0, behavior: "smooth" })} className='cursor-pointer'>
                                         <span>
                                             <ChartNoAxesCombinedIcon />
                                             <span>Recon Dashboard</span>
