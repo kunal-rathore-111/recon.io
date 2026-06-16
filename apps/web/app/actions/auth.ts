@@ -2,7 +2,7 @@
 "use server"
 
 import { createSession, deleteSession } from "@/lib/session";
-import { db, UsersTable } from "@repo/database";
+import { db, usersTable } from "@repo/database";
 import { signInValidationFn, signUpValidationFn } from "@repo/validation";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
@@ -14,9 +14,9 @@ import { redirect } from "next/navigation";
 
 export async function signUpAction(prevState: any, formData: FormData) {
     const email = formData.get('email') as string;
-    const userFullName = formData.get('userFullName') as string;
+    const name = formData.get('name') as string;
     const password = formData.get('password') as string;
-    const validation = signUpValidationFn({ email, password, userFullName });
+    const validation = signUpValidationFn({ email, password, name });
     if (!validation.success) {
 
         return {
@@ -26,15 +26,15 @@ export async function signUpAction(prevState: any, formData: FormData) {
     }
     else {
         try {
-            const existingUser = await db.select().from(UsersTable).where(eq(UsersTable.email, email)).limit(1);
+            const existingUser = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
             if (existingUser.length > 0) {
                 return { error: "User with this email already exists" }
             }
             else {
                 const hashedPass = await bcrypt.hash(password, 10);
 
-                const newUser = await db.insert(UsersTable).values({
-                    userFullName, email, passwordHash: hashedPass
+                const newUser = await db.insert(usersTable).values({
+                    name, email, passwordHash: hashedPass
                 }).returning();
 
                 if (!newUser[0]) return { error: "Failed to create users" }
@@ -44,7 +44,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
                         {
                             email: newUser[0].email,
                             userId: newUser[0].id,
-                            userFullName: newUser[0].userFullName
+                            name: newUser[0].name
                         }
                     )
                     redirect('/dashboard') // will throw error next-redirect
@@ -73,7 +73,7 @@ export async function signInAction(prevState: any, formData: FormData) {
         return { error: validation.error.issues[0].message || "Invalid input" };
     }
     try {
-        const existingUser = await db.select().from(UsersTable).where(eq(UsersTable.email, email)).limit(1);
+        const existingUser = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
         if (existingUser.length === 0) {
             return { error: `User with ${email} not found` }
@@ -90,7 +90,7 @@ export async function signInAction(prevState: any, formData: FormData) {
                 await createSession({
                     email: existingUser[0].email,
                     userId: existingUser[0].id,
-                    userFullName: existingUser[0].userFullName
+                    name: existingUser[0].name
                 });
 
                 redirect("/dashboard")

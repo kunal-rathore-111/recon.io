@@ -31,9 +31,9 @@ export async function getReconsAction() {
     try {
         const data = await db.select().from(ReconTable).where(eq(ReconTable.userId, userId)).orderBy(desc(ReconTable.updatedAt));
 
-        return { data, email: session.email as string, userFullName: session.userFullName as string };
+        return { data, email: session.email as string, name: session.name as string };
     } catch (error) {
         console.error("Error in getReconsAction- ", error);
-        return { error: "Failed to fetch data", email: session.email as string, userFullName: session.userFullName as string }
+        return { error: "Failed to fetch data", email: session.email as string, name: session.name as string }
     }
 }

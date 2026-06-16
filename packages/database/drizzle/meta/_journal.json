@@ -5,22 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1778925674340,
-      "tag": "0000_youthful_captain_cross",
+      "when": 1781617242398,
+      "tag": "0000_noisy_stick",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1778991387181,
-      "tag": "0001_cheerful_meteorite",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1781370763905,
-      "tag": "0002_strange_virginia_dare",
+      "when": 1781617875325,
+      "tag": "0001_premium_maelstrom",
       "breakpoints": true
     }
   ]

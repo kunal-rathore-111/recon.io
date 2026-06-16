@@ -17,6 +17,8 @@ import { useDispatch } from "react-redux"
 import { openLegalModal } from "@/lib/store/features/legal/legalSlice"
 import { signInAction, signUpAction } from "@/app/actions/auth"
 import { LoaderIcon } from "./animated-icons/LoaderIcon"
+import { Home } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export function SignForm({
   className,
@@ -24,12 +26,13 @@ export function SignForm({
   ...props
 }: React.ComponentProps<"div"> & { mode: "signin" | "signup" }) {
   const [email, setEmail] = useState("")
-  const [userFullName, setUserFullName] = useState("")
+  const [name, setname] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("");
 
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const [state, formAction, isPending] = useActionState(mode === "signup" ? signUpAction : signInAction, null);
 
@@ -53,6 +56,7 @@ export function SignForm({
         <CardContent className="grid p-0 md:grid-cols-2">
           <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <FieldGroup>
+              <Link href="/"><Home size={18} /></Link>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">
                   {mode === "signup" ? "Create your account" : "Welcome back"}
@@ -65,17 +69,17 @@ export function SignForm({
               </div>
               {mode === 'signup' &&
                 <Field>
-                  <FieldLabel htmlFor="userFullName">
+                  <FieldLabel htmlFor="name">
                     Full name
                   </FieldLabel>
                   <Input
-                    id="userFullName"
-                    name="userFullName"
+                    id="name"
+                    name="name"
                     type="text"
                     placeholder="Your full name"
                     required
-                    value={userFullName}
-                    onChange={(e) => setUserFullName(e.target.value)}
+                    value={name}
+                    onChange={(e) => setname(e.target.value)}
                   />
                 </Field>
               }
@@ -179,7 +183,7 @@ export function SignForm({
               <FieldDescription className="text-center">
                 {mode === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
                 <Link
-                  href={mode === "signup" ? "/sign/sign-in" : "/sign/sign-up"}
+                  href={mode === "signup" ? "/auth/sign-in" : "/auth/sign-up"}
                   className="underline underline-offset-4 hover:text-primary"
                 >
                   {mode === "signup" ? "Sign in" : "Create account"}

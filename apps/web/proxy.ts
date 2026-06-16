@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkJWT } from './lib/session';
 
 const protectedRoutes = ['/dashboard'];
-const publicRoutes = ['/sign/sign-in', '/sign/sign-up'];
+const publicRoutes = ['/auth/sign-in', '/auth/sign-up'];
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -19,7 +19,7 @@ export async function proxy(request: NextRequest) {
   if (session && isPublicRoute) return NextResponse.redirect(new URL('/dashboard', request.nextUrl));
 
   // or if no token and also at dasboard redirect to sign
-  if (!session && isProtectedRoute) return NextResponse.redirect(new URL('/sign/sign-in', request.nextUrl));
+  if (!session && isProtectedRoute) return NextResponse.redirect(new URL('/auth/sign-in', request.nextUrl));
 
   return NextResponse.next();
 }

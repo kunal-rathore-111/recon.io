@@ -2,12 +2,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
 export interface initialStateTypes {
-    userFullName: string,
+    name: string,
     email: string
 }
 
 const initialState = {
-    userFullName: "username",
+    name: "username",
     email: 'example@gmail.com'
 }
 
@@ -16,7 +16,7 @@ const userDetailSlice = createSlice({
     initialState: initialState,
     reducers: {
         setUserEmailAndUsername: (state, action: PayloadAction<initialStateTypes>) => {
-            state.userFullName = action.payload.userFullName;
+            state.name = action.payload.name;
             state.email = action.payload.email
         }
     }

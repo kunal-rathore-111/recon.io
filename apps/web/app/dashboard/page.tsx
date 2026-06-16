@@ -12,9 +12,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     toast.error(response.error);
   }
   const email = response.email ?? "example@gmail.com";
-  const userFullName = response.userFullName ?? "example user";
+  const name = response.name ?? "example user";
 
 
 
-  return <DashboardClientComp recons={response.data} email={email} userFullName={userFullName} searchQuery={search} />
+  return <DashboardClientComp recons={response.data} email={email} name={name} searchQuery={search} />
 }

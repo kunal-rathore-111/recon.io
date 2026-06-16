@@ -1,22 +1,57 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, integer, primaryKey, index } from "drizzle-orm/pg-core";
 
 // Users Table
-export const UsersTable = pgTable("users", {
+export const usersTable = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
     email: text("email").notNull().unique(),
-    userFullName: text('userFullName').notNull(),
-    passwordHash: text("passwordHash").notNull(),
-    name: text("name"),
-    avatarUrl: text("avatarUrl"),
+    name: text('name').notNull(),
+    passwordHash: text("passwordHash"), //optional for OAuth
+    isVerified: boolean("isVerified").default(false).notNull(),
+    emailVerified: timestamp("emailVerified"),
+    image: text("image"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+// Accounts table
+
+export const accountsTable = pgTable("accounts", {
+
+    userId: uuid("userId").references(() => usersTable.
+        id, { onDelete: "cascade" }).notNull(),
+
+    provider: text('provider').notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    type: text("type").notNull(),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+
+}, (table) =>
+({
+    accountPk: primaryKey({
+        columns: [
+            table.provider,
+            table.providerAccountId]
+    }),
+
+    userIdIndex: index("userIdIndex").on(table.userId)
+}))
+
+export const sessionsTable = pgTable("sessions", {
+    sessionToken: text('sessionToken').notNull().primaryKey(),
+    expires: timestamp('expires').notNull(),
+    userId: uuid('userId').references(() => usersTable.id, { onDelete: 'cascade' }).notNull(),
+})
 
 
 // Recon Table (The Missions)
-export const ReconTable = pgTable("reconTable", {
+export const ReconTable = pgTable("recon", {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("userId").references(() => UsersTable.id, { onDelete: "cascade" }).notNull(),
+    userId: uuid("userId").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
     url: text("url").notNull(),
     title: text("title").notNull(),
     mission: text("mission").notNull(),
@@ -40,9 +75,9 @@ export const ReconSnapshotsTable = pgTable("reconSnapshotsTable", {
 
 // --- RELATIONS ---
 export const ReconRelation = relations(ReconTable, ({ one, many }) => ({
-    user: one(UsersTable, {
+    user: one(usersTable, {
         fields: [ReconTable.userId],
-        references: [UsersTable.id],
+        references: [usersTable.id],
     }),
     snapshots: many(ReconSnapshotsTable),
 }));

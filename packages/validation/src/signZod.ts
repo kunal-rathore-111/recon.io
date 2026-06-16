@@ -14,7 +14,7 @@ export const signInSchema = z.object({
 })
 
 export const signUpSchema = signInSchema.extend({
-    userFullName: z.string().min(3, { message: "Full name must have atleast 3 characters" })
+    name: z.string().min(3, { message: "Full name must have atleast 3 characters" })
         .max(1000, { message: "The length of Full name cannot exceed 1000 characters" })
 })
 
@@ -26,7 +26,7 @@ export function signInValidationFn(props: SignInValidationFnInput) {
 }
 
 interface SignUpValidationFnInput extends SignInValidationFnInput {
-    userFullName: string
+    name: string
 }
 export function signUpValidationFn(props: SignUpValidationFnInput) {
     return signUpSchema.safeParse(props);
