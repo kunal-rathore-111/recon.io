@@ -15,6 +15,13 @@
       "when": 1781617875325,
       "tag": "0001_premium_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781723614075,
+      "tag": "0002_salty_rick_jones",
+      "breakpoints": true
     }
   ]
 }

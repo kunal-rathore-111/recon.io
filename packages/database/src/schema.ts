@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, integer, primaryKey, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, primaryKey, } from "drizzle-orm/pg-core";
 
 // Users Table
 export const usersTable = pgTable("users", {
@@ -15,11 +15,10 @@ export const usersTable = pgTable("users", {
 
 
 // Accounts Table
-const providerEnum = pgEnum('providerEnum', ["Google", "Twitter"]);
 
 export const accountsTable = pgTable("accounts", {
     userId: uuid('userId').references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
-    provider: providerEnum('provider').notNull(),
+    provider: text('provider').notNull(), // not using enum so flexible for later more options
     providerAccountId: text('providerAccountId').notNull()
 }, (table) => ({
     accountPk: primaryKey({ columns: [table.provider, table.providerAccountId] })

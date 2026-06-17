@@ -34,7 +34,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
                 const hashedPass = await bcrypt.hash(password, 10);
 
                 const newUser = await db.insert(usersTable).values({
-                    name, email, passwordHash: hashedPass
+                    name, email, hashedPassword: hashedPass,
                 }).returning();
 
                 if (!newUser[0]) return { error: "Failed to create users" }
@@ -81,7 +81,9 @@ export async function signInAction(prevState: any, formData: FormData) {
 
         else {
             // check password
-            const isValidPassword = await bcrypt.compare(password, existingUser[0].passwordHash);
+            if (!existingUser[0].hashedPassword) return { error: "No password present, please try forget password" };
+
+            const isValidPassword = await bcrypt.compare(password, existingUser[0]?.hashedPassword);
 
             if (!isValidPassword) {
                 return { error: "Invalid password" }

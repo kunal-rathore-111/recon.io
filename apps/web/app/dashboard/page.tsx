@@ -9,7 +9,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const response = await getReconsAction();
   const search = (await searchParams).search ?? null;
   if (response.error) {
-    toast.error(response.error);
+    return response.error;
   }
   const email = response.email ?? "example@gmail.com";
   const name = response.name ?? "example user";
