@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useDispatch } from "react-redux"
 import { openLegalModal } from "@/lib/store/features/legal/legalSlice"
-import { signInAction, signUpAction } from "@/app/actions/auth"
+import { signInAction, signUpAction } from "@/app/actions/authAction"
 import { LoaderIcon } from "./animated-icons/LoaderIcon"
 import { Home } from "lucide-react"
 import { useRouter } from "next/navigation"

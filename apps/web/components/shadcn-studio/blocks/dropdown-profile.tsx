@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { signOutAction } from '@/app/actions/auth'
+import { signOutAction } from '@/app/actions/authAction'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/lib/store/store'
 

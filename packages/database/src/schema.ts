@@ -3,48 +3,34 @@ import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, intege
 
 // Users Table
 export const usersTable = pgTable("users", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    email: text("email").notNull().unique(),
+    id: uuid('id').defaultRandom().primaryKey(),
     name: text('name').notNull(),
-    passwordHash: text("passwordHash"), //optional for OAuth
-    isVerified: boolean("isVerified").default(false).notNull(),
-    emailVerified: timestamp("emailVerified"),
-    image: text("image"),
-    createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-// Accounts table
+    email: text('email').notNull().unique(),
+    hashedPassword: text('hashedPassword'),
+    image: text('image'),
+    isVerified: boolean('isVerified').notNull().default(false),
+    createdAt: timestamp("createdAt").defaultNow(),
+
+})
+
+
+// Accounts Table
+const providerEnum = pgEnum('providerEnum', ["Google", "Twitter"]);
 
 export const accountsTable = pgTable("accounts", {
-
-    userId: uuid("userId").references(() => usersTable.
-        id, { onDelete: "cascade" }).notNull(),
-
-    provider: text('provider').notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    type: text("type").notNull(),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
-    scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
-
-}, (table) =>
-({
-    accountPk: primaryKey({
-        columns: [
-            table.provider,
-            table.providerAccountId]
-    }),
-
-    userIdIndex: index("userIdIndex").on(table.userId)
+    userId: uuid('userId').references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+    provider: providerEnum('provider').notNull(),
+    providerAccountId: text('providerAccountId').notNull()
+}, (table) => ({
+    accountPk: primaryKey({ columns: [table.provider, table.providerAccountId] })
 }))
 
-export const sessionsTable = pgTable("sessions", {
-    sessionToken: text('sessionToken').notNull().primaryKey(),
-    expires: timestamp('expires').notNull(),
-    userId: uuid('userId').references(() => usersTable.id, { onDelete: 'cascade' }).notNull(),
+
+//  OTP TABLE FOR SIGN-UP (will update with redis)
+export const signUp_OTP_Table = pgTable("signUp_OTP", {
+    email: text('email').primaryKey(),
+    otp: text('otp').notNull(),
+    expiresAt: timestamp('expiresAt').notNull()
 })
 
 
