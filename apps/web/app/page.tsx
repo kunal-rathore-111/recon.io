@@ -6,23 +6,9 @@ import { LinkedinIcon } from '@/components/animated-icons/LinkdinIcon';
 import { MailCheckIcon } from '@/components/animated-icons/MailIcon';
 import { HeroSection } from '@/components/Landing-Page/HeroSection';
 import { GithubURL } from '@/lib/urls';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
-import { toast } from 'sonner';
 import { motion } from "framer-motion"
 
-function LogoutNotifyComp() {
-  const searchParam = useSearchParams();
-  const logout = searchParam.get('logout');
-  const hasShownToast = useRef(false);
-  useEffect(() => {
-    if (logout && logout === 'true' && !hasShownToast.current) {
-      toast.success('Log out successfully');
-      hasShownToast.current = true;
-    }
-  }, [logout]);
-  return null;
-}
+
 
 export default function Home() {
   const Social = [
@@ -51,7 +37,6 @@ export default function Home() {
 
   return (
     <div className=" flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <LogoutNotifyComp />
 
       <main className=" relative flex flex-1 w-full bg-white dark:bg-black sm:items-start">
         <div className="h-screen w-screen flex items-center justify-center">

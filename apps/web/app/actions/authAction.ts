@@ -18,7 +18,6 @@ export async function signUpAction(prevState: any, formData: FormData) {
     const password = formData.get('password') as string;
     const validation = signUpValidationFn({ email, password, name });
     if (!validation.success) {
-
         return {
             error: validation.error.issues[0].message
                 || "Invalid input fields"
@@ -110,6 +109,6 @@ export async function signInAction(prevState: any, formData: FormData) {
 
 export async function signOutAction() {
     await deleteSession();
-    redirect('/?logout=true');
+    redirect('/auth/sign-in/?logout=true');
 
 }

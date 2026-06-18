@@ -30,6 +30,8 @@ export async function checkJWT(token: string) {
 export async function createSession(user: jwtInput) {
     const cookieStore = await cookies();
     const token = await createJWT(user);
+    cookieStore.delete("session")  // clear old one first
+
     cookieStore.set("session", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

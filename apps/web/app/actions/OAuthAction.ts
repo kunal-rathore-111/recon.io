@@ -3,6 +3,10 @@
 import { signIn } from "@/auth"
 
 
-export const googleSignIn = async () => {
-    await signIn("google", { redirectTo: '/dashboard' })
+interface OAuthSignInDTO {
+    authProvider: 'discord' | 'google' | 'github'
+}
+
+export const OAuthSignIn = async (props: OAuthSignInDTO) => {
+    await signIn(props.authProvider, { redirectTo: '/dashboard' });
 }

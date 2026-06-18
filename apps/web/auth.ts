@@ -1,6 +1,6 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
-import Twitter from "next-auth/providers/twitter"
+import Discord from "next-auth/providers/discord"
 import Github from "next-auth/providers/github"
 import { accountsTable, db, usersTable } from "@repo/database"
 import { and, eq } from "drizzle-orm"
@@ -8,56 +8,64 @@ import { createSession } from "./lib/session"
 
 
 export const result = NextAuth({
-    providers: [Google, Twitter, Github],
+    providers: [Google, Discord, Github],
+    pages: {
+        error: '/auth/sign-in'
+    },
     callbacks: {
         async signIn({ user, account }) {
-            if (!user.email || !account) return false;
-            else {
-                // check in accounts-> if present set userId, else check in usersTable if there present create new in accountsTable, if not present in both then create in both and set userId
-                let userId: string
+            try {
+                if (!user.email || !account) return false;
+                else {
+                    // check in accounts-> if present set userId, else check in usersTable if there present create new in accountsTable, if not present in both then create in both and set userId
+                    let userId: string
 
-                const existingUser = await db.select().from(accountsTable).
-                    where(and
-                        (
-                            eq(accountsTable.provider, account.provider),
-                            eq(accountsTable.providerAccountId, account.providerAccountId)
-                        )
-                    ).
-                    limit(1);
-
-                if (existingUser.length) userId = existingUser[0].userId;
-
-                else { // not present in accountsTable
-
-                    const existingUser = await db.select().
-                        from(usersTable).
-                        where(
-                            eq(usersTable.email, user.email)).
+                    const existingUser = await db.select().from(accountsTable).
+                        where(and
+                            (
+                                eq(accountsTable.provider, account.provider),
+                                eq(accountsTable.providerAccountId, account.providerAccountId)
+                            )
+                        ).
                         limit(1);
 
-                    if (existingUser.length) userId = existingUser[0].id;
+                    if (existingUser.length) userId = existingUser[0].userId;
 
-                    else { // not present in usersTable too 
-                        const newUser = await db.insert(usersTable).values({
-                            email: user.email,
-                            name: user.name || "unknown",
-                            isVerified: true,
-                            image: user.image,
-                        }).returning();
+                    else { // not present in accountsTable
 
-                        userId = newUser[0].id;
+                        const existingUser = await db.select().
+                            from(usersTable).
+                            where(
+                                eq(usersTable.email, user.email)).
+                            limit(1);
+
+                        if (existingUser.length) userId = existingUser[0].id;
+
+                        else { // not present in usersTable too 
+                            const newUser = await db.insert(usersTable).values({
+                                email: user.email,
+                                name: user.name || "unknown",
+                                isVerified: true,
+                                image: user.image,
+                            }).returning();
+
+                            userId = newUser[0].id;
+                        }
+                        // create entry in accounts table in both cases (present in usersTable, not present in usersTable)
+                        await db.insert(accountsTable).values({
+                            userId: userId,
+                            provider: account.provider,
+                            providerAccountId: account.providerAccountId
+                        })
                     }
-                    // create entry in accounts table in both cases (present in usersTable, not present in usersTable)
-                    await db.insert(accountsTable).values({
-                        userId: userId,
-                        provider: account.provider,
-                        providerAccountId: account.providerAccountId
-                    })
-                }
-                // finally create session
-                await createSession({ email: user.email, userId, name: user.name || "unknown" });
+                    // finally create session
+                    await createSession({ email: user.email, userId, name: user.name || "unknown" });
 
-                return true;
+                    return true;
+                }
+            } catch (error) {
+                console.error("[OAUTH failed]: ", error);
+                return false;
             }
         }
     }
