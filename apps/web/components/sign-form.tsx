@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useDispatch } from "react-redux"
 import { openLegalModal } from "@/lib/store/features/legal/legalSlice"
-import { signInAction, signUpAction } from "@/app/actions/authAction"
+import { signInAction, signUpAction } from "@/app/actions/authActions"
 import { LoaderIcon } from "./animated-icons/LoaderIcon"
 import { Home } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -77,7 +77,7 @@ export function SignForm({
     const error = searchParam.get('error');
     if (error) toast.error("Something went wrong, please try again.");
     router.replace(pathname);
-  }, [searchParam])
+  }, [])
 
 
   return (
@@ -139,7 +139,7 @@ export function SignForm({
                         <div className="flex items-center justify-between">
                           <FieldLabel htmlFor="password">Password</FieldLabel>
                           {mode === "signin" && (
-                            <Link href="#" className="text-xs text-muted-foreground hover:underline">
+                            <Link href="/auth/forgot-password" className="text-xs text-muted-foreground hover:underline">
                               Forgot password?
                             </Link>
                           )}

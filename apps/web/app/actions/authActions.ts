@@ -80,7 +80,7 @@ export async function signInAction(prevState: any, formData: FormData) {
 
         else {
             // check password
-            if (!existingUser[0].hashedPassword) return { error: "No password present, please try forget password" };
+            if (!existingUser[0].hashedPassword) return { error: "No password present, please try forgot password" };
 
             const isValidPassword = await bcrypt.compare(password, existingUser[0]?.hashedPassword);
 

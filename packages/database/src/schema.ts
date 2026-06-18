@@ -32,6 +32,13 @@ export const signUp_OTP_Table = pgTable("signUp_OTP", {
     expiresAt: timestamp('expiresAt').notNull()
 })
 
+//  OTP TABLE FOR Forgot Password (will update with redis)
+export const forgotPassword_OTP_Table = pgTable("forgotPassword_OTP", {
+    email: text('email').primaryKey(),
+    otp: text('otp').notNull(),
+    expiresAt: timestamp('expiresAt').notNull()
+})
+
 
 // Recon Table (The Missions)
 export const ReconTable = pgTable("recon", {
