@@ -22,6 +22,27 @@
       "when": 1781723614075,
       "tag": "0002_salty_rick_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781806250962,
+      "tag": "0003_daily_excalibur",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781806290457,
+      "tag": "0004_light_thing",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781812865381,
+      "tag": "0005_nervous_mandrill",
+      "breakpoints": true
     }
   ]
 }

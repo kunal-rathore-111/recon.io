@@ -1,11 +1,11 @@
 
 "use server"
 
-import { createSession, deleteSession } from "@/lib/session";
-import { db, usersTable } from "@repo/database";
+import { createForgotPasswordSession, createSession, deleteSession } from "@/lib/session";
+import { db, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
 import { signInValidationFn, signUpValidationFn } from "@repo/validation";
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
@@ -111,4 +111,116 @@ export async function signOutAction() {
     await deleteSession();
     redirect('/auth/sign-in/?logout=true');
 
+}
+
+
+export async function validateOTPAction(prevState: any, formData: FormData) {
+    try {
+        // check inputs->
+        // find in table using email only->
+        // check found->
+        //  if notFound-> return error
+        //   else->
+        //       check attempts and otp->
+        //            if incorrect OTP AND less attempts return error,
+        //            else more attempts or correct OTP->
+        //                   delete the entry->
+        //             if more attepts return Error->
+        //             else if correct otp redirect->
+        //             else return error
+        const email = formData.get("email") as string;
+        const otp = formData.get("otp") as string;
+
+        const type = formData.get("type");
+        if (!email || !otp || !type) {
+            return { error: "Input field is empty" };
+        }
+
+        let find = null;
+        if (type === "forgotPassword") {
+            find = await db
+                .select()
+                .from(forgotPassword_OTP_Table)
+                .where(
+                    eq(forgotPassword_OTP_Table.email, email),
+                );
+        }
+
+        else if (type === "createAccount") {
+            find = await db
+                .select()
+                .from(signUp_OTP_Table)
+                .where(
+                    eq(signUp_OTP_Table.email, email),
+                );
+        }
+
+        if (!find || !find.length) {
+            return { error: "Invalid email" };
+        }
+
+        else if (find[0].attempts < 3 && otp !== find[0].otp) {
+
+            if (type === "forgotPassword") {
+                await db.update(forgotPassword_OTP_Table).set({ attempts: find[0].attempts + 1 }).where(eq(forgotPassword_OTP_Table.email, email));
+
+            }
+
+            else if (type === "createAccount") {
+                await db.update(signUp_OTP_Table).set({ attempts: find[0].attempts + 1 }).where(eq(signUp_OTP_Table.email, email));
+            }
+
+            return { error: "Invalid OTP." }
+        }
+        else {
+
+            // delete the OTP then check attempts, then check expiry, if all done then redirect or return
+
+            // delete OTP
+            if (type === "forgotPassword") {
+                await db.delete(forgotPassword_OTP_Table).where(eq(forgotPassword_OTP_Table.email, email));
+
+            }
+
+            else if (type === "createAccount") {
+                await db.delete(signUp_OTP_Table).where(eq(signUp_OTP_Table.email, email));
+            }
+
+            // check attempts
+            if (find[0].attempts >= 3) {
+                return { error: "Maximum 3 attempts are allowed, please regenerate OTP." }
+            }
+
+            if (find[0].otp === otp) {
+
+                // check EXPIRY AND REDIRECT
+                if (find[0].expiresAt > new Date()) {
+
+                    if (type === "forgotPassword") {
+                        // add cookie and redirect
+                        await createForgotPasswordSession({ email, otp });
+                        redirect('/forgot-password/reset-password');
+                    }
+
+                    else if (type === "createAccount") {
+
+                        await db.update(usersTable).set({ isVerified: true }).where(eq(usersTable.email, email));
+                        return { success: true };
+                    }
+                }
+                else {
+                    return { error: "OTP expired." }
+                }
+            }
+            else {
+                return { error: "Invalid OTP" }
+            }
+        }
+
+    } catch (error) {
+        if (isRedirectError(error)) throw error;
+        console.error("Error in validateOTPAction: ", error);
+
+        return { error: "Something went wrong in validating OTP, please try again." };
+    }
 }

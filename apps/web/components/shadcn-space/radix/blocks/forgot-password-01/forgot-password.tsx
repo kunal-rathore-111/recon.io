@@ -1,5 +1,7 @@
 "use client"
 
+import { validateOTPAction } from "@/app/actions/authActions";
+import { sendOTP } from "@/app/services/emailService";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,9 +14,8 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ValidateOTP } from "@repo/validation";
 import Link from "next/link";
-import { useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { toast } from "sonner";
-
 
 
 const ForgotPasswordComp = () => {
@@ -23,7 +24,29 @@ const ForgotPasswordComp = () => {
 
   const [OTP, setOTP] = useState<string>('');
   const [showOTPInput, setShowOTPInput] = useState<boolean>(false);
-  function handleSubmit() {
+
+  const [isResending, startTransition] = useTransition();
+
+
+  /*FUNCTIONS */
+
+  const resendOTP = async () => {
+
+    const response = await sendOTP(email, "forgotPassword");
+    if (response.error) {
+      toast.error(response.error);
+      return;
+    }
+    else {
+      toast(response.message);
+      setOTP("");
+      return;
+    }
+  }
+
+  const [state, formAction, isPending] = useActionState(handleSubmit, null);
+
+  async function handleSubmit(prevState: any, formData: FormData) {
 
     if (!email) {
       toast.error("Email input is empty.");
@@ -32,18 +55,33 @@ const ForgotPasswordComp = () => {
     else if (!showOTPInput) {
       // send OTP then show otp input
       // send OTP function call here
+      const response = await sendOTP(email, 'forgotPassword');
 
-      setShowOTPInput(true);
-      setShowUpdateEmailButton(true);
+      if (response.error) {
+        toast.error(response.error);
+        return;
+      }
+      else {
+        toast(response.message);
+
+        setShowOTPInput(true);
+        setShowUpdateEmailButton(true);
+      }
     }
-    else {
+    else { // if above all fails means validate OTP and redirect to update password form
       const ZodOTPResult = ValidateOTP(OTP);
       if (!ZodOTPResult.success) { // need to update with zod validation
         toast.error(ZodOTPResult.error.issues[0].message);
         return;
       }
       else {
-        // make backend call
+        // make backend call to check OTP
+        formData.append('type', 'forgotPassword');
+        const response = await validateOTPAction(prevState, formData);
+        /*   if (response.error) {
+            toast.error(response.error);
+          } */
+        //working
       }
     }
 
@@ -79,109 +117,113 @@ const ForgotPasswordComp = () => {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <form action={handleSubmit}>
-              <FieldGroup className="gap-6">
-                <div className="flex flex-col gap-4">
-                  <Field className="gap-1.5">
-                    <FieldLabel
-                      htmlFor="email"
-                      className="text-sm text-muted-foreground font-normal
+
+            <fieldset disabled={isPending || isResending}>
+
+              <form action={formAction}>
+                <FieldGroup className="gap-6">
+                  <div className="flex flex-col gap-4">
+                    <Field className="gap-1.5">
+                      <FieldLabel
+                        htmlFor="email"
+                        className="text-sm text-muted-foreground font-normal
                       justify-between"
-                    >
-                      Email*
-                      {
-                        showUpdateEmailButton
-                        &&
-                        <Button
-                          variant={"link"}
-                          onClick={() => {
-                            setShowOTPInput(false);
-                            setShowUpdateEmailButton(false);
-                          }}
-                        >
-                          Update Email
-                        </Button>
-                      }
-                    </FieldLabel>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={showOTPInput}
-                      placeholder="example@gmail.com"
-                      required
-                      className="dark:bg-background h-9"
-                    />
-                  </Field>
-                </div>
+                      >
+                        Email*
+                        {
+                          showUpdateEmailButton
+                          &&
+                          <Button
+                            variant={"link"}
+                            onClick={() => {
+                              setShowOTPInput(false);
+                              setShowUpdateEmailButton(false);
+                            }}
+                          >
+                            Update Email
+                          </Button>
+                        }
+                      </FieldLabel>
+                      <Input
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        readOnly={showOTPInput}
+                        placeholder="example@gmail.com"
+                        required
+                        className="dark:bg-background h-9"
+                      />
+                    </Field>
+                  </div>
 
 
-                {/* OTP block */}
-                {
-                  showOTPInput &&
-                  <FieldGroup className="gap-6">
-                    <div className="flex flex-col gap-4">
-                      <Field className="gap-1.5">
-                        <FieldLabel
-                          htmlFor="OTP"
-                          className="text-sm text-muted-foreground font-normal justify-between"
-                        >
-                          OTP*
-                          {
-                            showUpdateEmailButton
-                            &&
-                            <Button
-                              variant={"link"}
-                              onClick={() => {
-                                setOTP('');
-                                // call send OTP function
-
-                              }}
-                            >
-                              Resend OTP
-                            </Button>
-                          }
-                        </FieldLabel>
-                        <Input
-                          placeholder="Enter your OTP"
-                          value={OTP}
-                          type="text"
-                          maxLength={6}
-                          minLength={6}
-                          required
-                          onChange={(e) => setOTP(e.target.value)}
-                        />
-                      </Field>
-                    </div>
-                  </FieldGroup>
-                }
-
-                <Field className="gap-4">
-
-                  {showOTPInput ?
-                    <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
-                    >
-                      Submit
-                    </Button>
-                    :
-                    <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
-                    >
-                      Send OTP
-                    </Button>
-
+                  {/* OTP block */}
+                  {
+                    showOTPInput &&
+                    <FieldGroup className="gap-6">
+                      <div className="flex flex-col gap-4">
+                        <Field className="gap-1.5">
+                          <FieldLabel
+                            htmlFor="OTP"
+                            className="text-sm text-muted-foreground font-normal justify-between"
+                          >
+                            OTP*
+                            {
+                              showUpdateEmailButton
+                              &&
+                              <Button
+                                variant={"link"}
+                                onClick={() => {
+                                  startTransition(async () => await resendOTP())
+                                }}
+                              >
+                                Resend OTP
+                              </Button>
+                            }
+                          </FieldLabel>
+                          <Input
+                            placeholder="Enter your OTP"
+                            value={OTP}
+                            name="otp"
+                            type="text"
+                            maxLength={6}
+                            minLength={6}
+                            required
+                            onChange={(e) => setOTP(e.target.value)}
+                          />
+                        </Field>
+                      </div>
+                    </FieldGroup>
                   }
-                  <Link
-                    href={'/auth/sign-in'}
-                    className="bg-black hover:bg-black/82
+
+                  <Field className="gap-4">
+
+                    {showOTPInput ?
+                      <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
+                      >
+                        Submit
+                      </Button>
+                      :
+                      <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
+                      >
+                        Send OTP
+                      </Button>
+
+                    }
+                    <Link
+                      href={'/auth/sign-in'}
+                      className="bg-black hover:bg-black/82
                     rounded-xl
                     text-white p-2 cursor-pointer text-center"
-                  >
-                    Back to Login
-                  </Link>
-                </Field>
-              </FieldGroup>
-            </form>
+                    >
+                      Back to Login
+                    </Link>
+                  </Field>
+                </FieldGroup>
+              </form>
+            </fieldset>
           </CardContent>
         </Card>
       </div>
