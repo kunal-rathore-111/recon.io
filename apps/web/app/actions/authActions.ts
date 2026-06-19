@@ -199,7 +199,7 @@ export async function validateOTPAction(prevState: any, formData: FormData) {
                     if (type === "forgotPassword") {
                         // add cookie and redirect
                         await createForgotPasswordSession({ email, otp });
-                        redirect('/forgot-password/reset-password');
+                        redirect('/auth/forgot-password/reset-password');
                     }
 
                     else if (type === "createAccount") {

@@ -17,7 +17,6 @@ import { useDispatch } from "react-redux"
 import { openLegalModal } from "@/lib/store/features/legal/legalSlice"
 import { signInAction, signUpAction } from "@/app/actions/authActions"
 import { LoaderIcon } from "./animated-icons/LoaderIcon"
-import { Home } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { OAuthSignIn } from "@/app/actions/OAuthAction"
@@ -25,7 +24,8 @@ import { GithubIcon } from "./animated-icons/GithubIcon"
 import { GoogleIcon } from "./animated-icons/GoogleIcon"
 import { animateByRef } from "@/lib/animateByRef"
 import { DiscordIcon } from "./animated-icons/DiscordIcon"
-
+import { BrutalistSignupCard } from "./brutalist-signup-card"
+import { HomeThemeButton } from "./homeThemeButton"
 
 
 
@@ -81,65 +81,79 @@ export function SignForm({
 
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 items-center justify-center", className)} {...props}>
 
       <LogoutNotifyComp />
 
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2 ">
-          <fieldset disabled={googleLoading || githubLoading || discordLoading || isPending}>
+      <Card className="overflow-hidden p-0  shadow-md max-w-2xl shadow-black rounded-sm ">
+        <CardContent className="grid p-0 md:grid-cols-3">
+          <fieldset className="col-span-2 border-2 border-black rounded-sm md:rounded-r-none " disabled={googleLoading || githubLoading || discordLoading || isPending}>
+
             <div className="p-6 md:p-8 space-y-4">
 
               <form onSubmit={handleSubmit}>
+                <FieldGroup className="space-y-2">
 
-                <FieldGroup>
-                  <Link href="/"><Home size={18} /></Link>
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <h1 className="text-2xl font-bold">
-                      {mode === "signup" ? "Create your account" : "Welcome back"}
-                    </h1>
+                  <div className="text-center space-y-3">
+                    <HomeThemeButton centerText={mode === 'signin' ? "Welcome Back" :
+                      "Create your account"} />
+
                     <p className="text-sm text-balance text-muted-foreground">
                       {mode === "signup"
                         ? "Enter your details below to create your account"
                         : "Enter your email below to login to your account"}
                     </p>
                   </div>
-                  {mode === 'signup' &&
+
+
+                  <div className="space-y-5">
+
+                    {mode === 'signup' &&
+                      <Field>
+                        <FieldLabel htmlFor="name">
+                          Full name
+                        </FieldLabel>
+                        <Input
+                          id="name"
+                          name="name"
+                          type="text"
+                          placeholder="Your full name"
+                          required
+                          value={name}
+                          onChange={(e) => setname(e.target.value)}
+                        />
+                      </Field>
+                    }
+
                     <Field>
-                      <FieldLabel htmlFor="name">
-                        Full name
-                      </FieldLabel>
+                      <FieldLabel htmlFor="email">Email</FieldLabel>
                       <Input
-                        id="name"
-                        name="name"
-                        type="text"
-                        placeholder="Your full name"
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="m@example.com"
                         required
-                        value={name}
-                        onChange={(e) => setname(e.target.value)}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </Field>
-                  }
 
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </Field>
-                  <Field>
+                    {
+                      error && <p className="text-xs text-destructive mt-1">{error}</p>
+                    }
+                    {
+                      state?.error && <p className="text-red-500">
+                        {state.error}
+                      </p>
+                    }
+
+
                     <div className={cn("grid gap-4", mode === "signup" && "md:grid-cols-2")}>
                       <Field>
                         <div className="flex items-center justify-between">
                           <FieldLabel htmlFor="password">Password</FieldLabel>
                           {mode === "signin" && (
-                            <Link href="/auth/forgot-password" className="text-xs text-muted-foreground hover:underline">
+                            <Link href="#" className="text-xs text-muted-foreground hover:underline">
                               Forgot password?
                             </Link>
                           )}
@@ -168,29 +182,21 @@ export function SignForm({
                         </Field>
                       )}
                     </div>
-                    {error && <p className="text-xs text-destructive mt-1">{error}</p>}
-                    {mode === "signup" && (
-                      <FieldDescription>
-                        Must be at least 6 characters long.
-                      </FieldDescription>
-                    )}
-                    {
-                      state?.error && <p className="text-red-500">
-                        {state.error}
-                      </p>
-                    }
-                  </Field>
 
-                  <Field>
-                    <Button type="submit" className="w-full" disabled={isPending}>
-                      {isPending ? <LoaderIcon /> :
-                        mode === "signup" ?
-                          "Create Account" : "Login"}
-                    </Button>
-                  </Field>
-                  <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                    Or continue with
-                  </FieldSeparator>
+
+
+
+                    <Field>
+                      <Button type="submit" className="w-full" disabled={isPending}>
+                        {isPending ? <LoaderIcon /> :
+                          mode === "signup" ?
+                            "Create Account" : "Login"}
+                      </Button>
+                    </Field>
+                    <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+                      Or continue with
+                    </FieldSeparator>
+                  </div>
                 </FieldGroup>
               </form>
 
@@ -208,7 +214,6 @@ export function SignForm({
                   {githubLoading ?
                     <LoaderIcon />
                     :
-
                     <GithubIcon ref={githubRef} />
                   }
                 </Button>
@@ -262,15 +267,28 @@ export function SignForm({
           </fieldset>
 
 
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/auth-bg.png"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
+          <div className=" hidden col-span-1 md:flex flex-col border-2 border-black border-l-0 rounded-l-none rounded-sm overflow-hidden bg-white">
+
+            <div className="flex-1">
+              <div className="flex flex-col h-full border-r-2 border-black">
+
+                <div className="border-b-0 border-black">
+                  <BrutalistSignupCard mode={mode} className="h-full w-full" />
+                </div>
+
+
+                <div className=" h-full w-full p-3 bg-yellow-400 flex flex-col justify-center items-start relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+                  <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black mb-2 group-hover:-translate-y-1 transition-transform duration-300">Blazing Fast</h3>
+                  <p className="text-black/80 font-semibold leading-tight text-lg">Zero-latency operations designed for optimal speed and agility.</p>
+
+                </div>
+              </div>
+
+            </div>
           </div>
         </CardContent>
-      </Card >
+      </Card>
 
       <FieldDescription className="px-6 text-center">
         By clicking continue, you agree to our  {" "}

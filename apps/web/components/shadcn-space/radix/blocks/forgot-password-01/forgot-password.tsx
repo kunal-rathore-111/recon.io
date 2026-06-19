@@ -2,6 +2,8 @@
 
 import { validateOTPAction } from "@/app/actions/authActions";
 import { sendOTP } from "@/app/services/emailService";
+import { LoaderIcon } from "@/components/animated-icons/LoaderIcon";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,12 +15,20 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ValidateOTP } from "@repo/validation";
+import { Home } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 
 const ForgotPasswordComp = () => {
+
+  const searchParam = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+
   const [email, setEmail] = useState<string>('');
   const [showUpdateEmailButton, setShowUpdateEmailButton] = useState<boolean>(false);
 
@@ -26,6 +36,15 @@ const ForgotPasswordComp = () => {
   const [showOTPInput, setShowOTPInput] = useState<boolean>(false);
 
   const [isResending, startTransition] = useTransition();
+
+
+  /* effects */
+  useEffect(() => {
+    if (searchParam.get('error')) {
+      toast.error(searchParam.get('error'));
+      router.replace(pathname);
+    }
+  }, [])
 
 
   /*FUNCTIONS */
@@ -52,8 +71,8 @@ const ForgotPasswordComp = () => {
       toast.error("Email input is empty.");
       return;
     }
+
     else if (!showOTPInput) {
-      // send OTP then show otp input
       // send OTP function call here
       const response = await sendOTP(email, 'forgotPassword');
 
@@ -64,6 +83,7 @@ const ForgotPasswordComp = () => {
       else {
         toast(response.message);
 
+        // send OTP then show otp input
         setShowOTPInput(true);
         setShowUpdateEmailButton(true);
       }
@@ -78,34 +98,33 @@ const ForgotPasswordComp = () => {
         // make backend call to check OTP
         formData.append('type', 'forgotPassword');
         const response = await validateOTPAction(prevState, formData);
-        /*   if (response.error) {
-            toast.error(response.error);
-          } */
-        //working
+        if (response?.error) {
+          toast.error(response.error);
+          return;
+        }
       }
     }
 
   }
 
+
+
   return (
-    <section className="h-screen bg-foreground dark:bg-background lg:py-20 sm:py-16 py-8 relative flex items-center justify-center">
+    <section className="h-screen bg-black  dark:bg-white lg:py-20 sm:py-16 py-8 relative flex items-center justify-center">
       <div className="py-10 md:py-20 max-w-lg px-4 sm:px-0 mx-auto w-full">
-        <Card className="px-6 py-8 sm:p-12 relative gap-6">
+        <Card className="px-6 py-4 sm:p-12 relative gap-6 shadow-xs dark:shadow-md 
+dark:shadow-black shadow-white" >
           <CardHeader className="text-center gap-6 p-0">
-            <div className="mx-auto">
-              <a href="">
-                <img
-                  src="https://images.shadcnspace.com/assets/logo/logo-icon-black.svg"
-                  alt="shadcnspace"
-                  className="dark:hidden h-10 w-10"
-                />
-                <img
-                  src="https://images.shadcnspace.com/assets/logo/logo-icon-white.svg"
-                  alt="shadcnspace"
-                  className="hidden dark:block h-10 w-10"
-                />
-              </a>
+            <div className="flex gap-2 justify-between w-full items-center">
+              <div className='rounded-full border p-2 flex items-center'>
+                <Link href="/"><Home size={18} /></Link>
+              </div>
+              <div className="text-xl font-bold font-serif">Recon</div>
+              <div className='rounded-full border p-2 flex items-center'>
+                <AnimatedThemeToggler />
+              </div>
             </div>
+
             <div className="flex flex-col gap-1">
               <CardTitle className="text-2xl font-medium text-card-foreground">
                 Forgot your password?
@@ -137,6 +156,7 @@ const ForgotPasswordComp = () => {
                             variant={"link"}
                             onClick={() => {
                               setShowOTPInput(false);
+                              setOTP("");
                               setShowUpdateEmailButton(false);
                             }}
                           >
@@ -183,6 +203,7 @@ const ForgotPasswordComp = () => {
                               </Button>
                             }
                           </FieldLabel>
+
                           <Input
                             placeholder="Enter your OTP"
                             value={OTP}
@@ -200,22 +221,30 @@ const ForgotPasswordComp = () => {
 
                   <Field className="gap-4">
 
-                    {showOTPInput ?
-                      <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
-                      >
-                        Submit
-                      </Button>
-                      :
-                      <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
-                      >
-                        Send OTP
-                      </Button>
+                    {
+                      isPending || isResending ?
+                        <Button size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
+                        >
+                          <LoaderIcon />
+                        </Button>
+                        :
+                        showOTPInput ?
+                          <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82 dark:hover:bg-white/80 dark:bg-white"
+                          >
+                            Submit
+                          </Button>
+                          :
+                          <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer "
+                          >
+                            Send OTP
+                          </Button>
 
                     }
                     <Link
                       href={'/auth/sign-in'}
                       className="bg-black hover:bg-black/82
-                    rounded-xl
+                      dark:bg-white dark:text-black
+                    rounded-xl dark:hover:bg-white/80
                     text-white p-2 cursor-pointer text-center"
                     >
                       Back to Login
@@ -232,3 +261,5 @@ const ForgotPasswordComp = () => {
 };
 
 export default ForgotPasswordComp;
+
+

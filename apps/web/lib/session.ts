@@ -89,3 +89,8 @@ export async function getForgotPasswordSession() {
     }
 }
 
+
+export async function deleteForgotPasswordSession() {
+    const cookieStore = await cookies();
+    cookieStore.delete("forgotPasswordSession");
+}
