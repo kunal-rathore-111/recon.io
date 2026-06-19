@@ -24,8 +24,9 @@ import { GithubIcon } from "./animated-icons/GithubIcon"
 import { GoogleIcon } from "./animated-icons/GoogleIcon"
 import { animateByRef } from "@/lib/animateByRef"
 import { DiscordIcon } from "./animated-icons/DiscordIcon"
-import { BrutalistSignupCard } from "./brutalist-signup-card"
 import { HomeThemeButton } from "./homeThemeButton"
+import { Earth } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 
 
 
@@ -83,20 +84,26 @@ export function SignForm({
   return (
     <div className={cn("flex flex-col gap-6 items-center justify-center", className)} {...props}>
 
+      <div className="text-xl flex items-center gap-1">
+        {<Earth className="inline-block" />} Recon-AI
+      </div>
+
       <LogoutNotifyComp />
 
-      <Card className="overflow-hidden p-0  shadow-md max-w-2xl shadow-black rounded-sm ">
-        <CardContent className="grid p-0 md:grid-cols-3">
-          <fieldset className="col-span-2 border-2 border-black rounded-sm md:rounded-r-none " disabled={googleLoading || githubLoading || discordLoading || isPending}>
+      <Card className="overflow-hidden p-0  shadow-md min-w-lg shadow-black rounded-sm ">
+        <CardContent className=" p-0 ">
+
+          <fieldset className=" border-2 border-black rounded-sm  " disabled={googleLoading || githubLoading || discordLoading || isPending}>
 
             <div className="p-6 md:p-8 space-y-4">
-
+              <HomeThemeButton />
               <form onSubmit={handleSubmit}>
                 <FieldGroup className="space-y-2">
 
-                  <div className="text-center space-y-3">
-                    <HomeThemeButton centerText={mode === 'signin' ? "Welcome Back" :
-                      "Create your account"} />
+                  <div className="text-center ">
+
+                    <h1 className="text-3xl">{mode === 'signin' ? "Welcome Back" :
+                      "Create your account"} </h1>
 
                     <p className="text-sm text-balance text-muted-foreground">
                       {mode === "signup"
@@ -153,7 +160,7 @@ export function SignForm({
                         <div className="flex items-center justify-between">
                           <FieldLabel htmlFor="password">Password</FieldLabel>
                           {mode === "signin" && (
-                            <Link href="#" className="text-xs text-muted-foreground hover:underline">
+                            <Link href="/auth/forgot-password" className="text-xs text-muted-foreground hover:underline">
                               Forgot password?
                             </Link>
                           )}
@@ -201,56 +208,54 @@ export function SignForm({
               </form>
 
               <div className="grid grid-cols-3 gap-4 ">
-                {/* Github */}
-                <Button variant="outline" type="button" className="w-full"
-                  {...animateByRef(githubRef)}
-                  onClick={
-                    async () => {
-                      setGitHubLoading(true);
-                      await OAuthSignIn({ authProvider: "github" })
-                      setGitHubLoading(false);
-                    }}
-                >
-                  {githubLoading ?
-                    <LoaderIcon />
-                    :
-                    <GithubIcon ref={githubRef} />
-                  }
-                </Button>
+                {
+                  [
+                    {
+                      ref: githubRef,
+                      setLoading: setGitHubLoading,
+                      type: 'github',
+                      loadingState: githubLoading,
+                      icon: GithubIcon
+                    },
+                    {
+                      ref: googleRef,
+                      setLoading: setGoogleLoading,
+                      type: 'google',
+                      loadingState: googleLoading,
+                      icon: GoogleIcon
+                    },
 
-                {/* Google */}
+                    {
+                      ref: discordRef,
+                      setLoading: setDiscordLoading,
+                      type: 'discord',
+                      loadingState: discordLoading,
+                      icon: DiscordIcon
+                    }
 
-                <Button variant="outline" type="submit" className="w-full"
-                  {...animateByRef(googleRef)}
-                  onClick={
-                    async () => {
-                      setGoogleLoading(true);
-                      await OAuthSignIn({ authProvider: "google" })
-                      setGoogleLoading(false);
-                    }}
-                >
-                  {googleLoading ?
-                    <LoaderIcon />
-                    :
-                    <GoogleIcon ref={googleRef} />
-                  }
-                </Button>
+                  ].map((x) => {
+                    return <Tooltip key={x.type}>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" type="submit" className="w-full"
+                          {...animateByRef(x.ref)}
+                          onClick={
+                            async () => {
+                              x.setLoading(true);
+                              await OAuthSignIn({ authProvider: x.type })
+                              x.setLoading(false);
+                            }}
+                        >
+                          {x.loadingState ?
+                            <LoaderIcon />
+                            :
+                            <x.icon ref={x.ref} />
+                          }
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{x.type} Login</TooltipContent>
+                    </Tooltip>
+                  })}
 
-                {/* discord */}
-                <Button variant="outline" type="button" className="w-full"
-                  {...animateByRef(discordRef)}
-                  onClick={
-                    async () => {
-                      setDiscordLoading(true);
-                      await OAuthSignIn({ authProvider: "discord" })
-                      setDiscordLoading(false);
-                    }}>
-                  {discordLoading ?
-                    <LoaderIcon />
-                    :
-                    <DiscordIcon ref={discordRef} />
-                  }
-                </Button>
 
               </div>
               <FieldDescription className="text-center">
@@ -267,26 +272,7 @@ export function SignForm({
           </fieldset>
 
 
-          <div className=" hidden col-span-1 md:flex flex-col border-2 border-black border-l-0 rounded-l-none rounded-sm overflow-hidden bg-white">
 
-            <div className="flex-1">
-              <div className="flex flex-col h-full border-r-2 border-black">
-
-                <div className="border-b-0 border-black">
-                  <BrutalistSignupCard mode={mode} className="h-full w-full" />
-                </div>
-
-
-                <div className=" h-full w-full p-3 bg-yellow-400 flex flex-col justify-center items-start relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-                  <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-black mb-2 group-hover:-translate-y-1 transition-transform duration-300">Blazing Fast</h3>
-                  <p className="text-black/80 font-semibold leading-tight text-lg">Zero-latency operations designed for optimal speed and agility.</p>
-
-                </div>
-              </div>
-
-            </div>
-          </div>
         </CardContent>
       </Card>
 

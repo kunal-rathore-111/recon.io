@@ -3,6 +3,7 @@
 import { validateOTPAction } from "@/app/actions/authActions";
 import { sendOTP } from "@/app/services/emailService";
 import { LoaderIcon } from "@/components/animated-icons/LoaderIcon";
+import { HomeThemeButton } from "@/components/homeThemeButton";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,15 +116,8 @@ const ForgotPasswordComp = () => {
         <Card className="px-6 py-4 sm:p-12 relative gap-6 shadow-xs dark:shadow-md 
 dark:shadow-black shadow-white" >
           <CardHeader className="text-center gap-6 p-0">
-            <div className="flex gap-2 justify-between w-full items-center">
-              <div className='rounded-full border p-2 flex items-center'>
-                <Link href="/"><Home size={18} /></Link>
-              </div>
-              <div className="text-xl font-bold font-serif">Recon</div>
-              <div className='rounded-full border p-2 flex items-center'>
-                <AnimatedThemeToggler />
-              </div>
-            </div>
+
+            <HomeThemeButton />
 
             <div className="flex flex-col gap-1">
               <CardTitle className="text-2xl font-medium text-card-foreground">
