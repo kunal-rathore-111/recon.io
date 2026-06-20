@@ -3,6 +3,7 @@ import { animateByRef, IconHandle } from '@/lib/animateByRef';
 import { useRef } from 'react';
 import { redirect } from 'next/navigation';
 import { RocketIcon } from '../animated-icons/RocketIcon';
+import Link from 'next/link';
 
 export function HeroSection() {
   const parent = {
@@ -93,13 +94,12 @@ export function HeroSection() {
             }
           }}
         >
-          <button className="border py-2 px-3  justify-center  border-black flex items-center gap-3 rounded-sm"
-            onClick={() => redirect('/sign/sign-in')}
-
+          <Link className="border py-2 px-3  justify-center  border-black flex items-center gap-3 rounded-sm"
+            href={'/auth/sign-in'}
             {...animateByRef(AnimateRef)}>
             Let's start
             <RocketIcon size={19} ref={AnimateRef} className='inline-block' />
-          </button>
+          </Link>
         </motion.div>
       </motion.div>
     </motion.div >

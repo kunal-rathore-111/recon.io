@@ -1,6 +1,6 @@
 {
-  "id": "a7689b9d-ec30-4fa5-9334-bbc6232fe99f",
-  "prevId": "2c675fa9-89df-4a01-bb95-6d1dbda4f8a2",
+  "id": "f8aae7f1-8f76-4594-9164-5879dfe29206",
+  "prevId": "d7c80134-88ed-4950-95d3-a466fd439aec",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -49,10 +49,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "reconSnapshotsTable_reconId_reconTable_id_fk": {
-          "name": "reconSnapshotsTable_reconId_reconTable_id_fk",
+        "reconSnapshotsTable_reconId_recon_id_fk": {
+          "name": "reconSnapshotsTable_reconId_recon_id_fk",
           "tableFrom": "reconSnapshotsTable",
-          "tableTo": "reconTable",
+          "tableTo": "recon",
           "columnsFrom": [
             "reconId"
           ],
@@ -69,8 +69,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.reconTable": {
-      "name": "reconTable",
+    "public.recon": {
+      "name": "recon",
       "schema": "",
       "columns": {
         "id": {
@@ -146,9 +146,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "reconTable_userId_users_id_fk": {
-          "name": "reconTable_userId_users_id_fk",
-          "tableFrom": "reconTable",
+        "recon_userId_users_id_fk": {
+          "name": "recon_userId_users_id_fk",
+          "tableFrom": "recon",
           "tableTo": "users",
           "columnsFrom": [
             "userId"
@@ -166,6 +166,90 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.accounts": {
+      "name": "accounts",
+      "schema": "",
+      "columns": {
+        "userId": {
+          "name": "userId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerAccountId": {
+          "name": "providerAccountId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "accounts_userId_users_id_fk": {
+          "name": "accounts_userId_users_id_fk",
+          "tableFrom": "accounts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "accounts_provider_providerAccountId_pk": {
+          "name": "accounts_provider_providerAccountId_pk",
+          "columns": [
+            "provider",
+            "providerAccountId"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.signUp_OTP": {
+      "name": "signUp_OTP",
+      "schema": "",
+      "columns": {
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "otp": {
+          "name": "otp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -177,41 +261,42 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "email": {
           "name": "email",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "userFullName": {
-          "name": "userFullName",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "passwordHash": {
-          "name": "passwordHash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
+        "hashedPassword": {
+          "name": "hashedPassword",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "avatarUrl": {
-          "name": "avatarUrl",
+        "image": {
+          "name": "image",
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "isVerified": {
+          "name": "isVerified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },

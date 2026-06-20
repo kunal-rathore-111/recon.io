@@ -1,11 +1,14 @@
-
+import Loading from "@/app/loading"
 import { SignForm } from "@/components/sign-form"
+import { Suspense } from "react"
 
-export default function SignupPage() {
+export default function SignInPage() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-4xl">
-        <SignForm mode="signup" />
+        <Suspense fallback={<Loading />}>
+          <SignForm mode="signin" />
+        </Suspense>
       </div>
     </div>
   )

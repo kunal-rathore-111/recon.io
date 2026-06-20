@@ -1,0 +1,1 @@
+ALTER TABLE "signUp_OTP" ALTER COLUMN "expiresAt" SET DATA TYPE timestamp with time zone;

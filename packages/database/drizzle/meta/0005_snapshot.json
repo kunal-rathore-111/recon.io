@@ -1,6 +1,6 @@
 {
-  "id": "88789000-24b1-4cdd-b552-0dff111a6aae",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "79e0afbd-224a-47b2-a5ad-00b04dd128d1",
+  "prevId": "07677dd8-b93f-4f17-935d-5d277a3f696c",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -49,10 +49,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "reconSnapshotsTable_reconId_reconTable_id_fk": {
-          "name": "reconSnapshotsTable_reconId_reconTable_id_fk",
+        "reconSnapshotsTable_reconId_recon_id_fk": {
+          "name": "reconSnapshotsTable_reconId_recon_id_fk",
           "tableFrom": "reconSnapshotsTable",
-          "tableTo": "reconTable",
+          "tableTo": "recon",
           "columnsFrom": [
             "reconId"
           ],
@@ -69,8 +69,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.reconTable": {
-      "name": "reconTable",
+    "public.recon": {
+      "name": "recon",
       "schema": "",
       "columns": {
         "id": {
@@ -146,9 +146,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "reconTable_userId_users_id_fk": {
-          "name": "reconTable_userId_users_id_fk",
-          "tableFrom": "reconTable",
+        "recon_userId_users_id_fk": {
+          "name": "recon_userId_users_id_fk",
+          "tableFrom": "recon",
           "tableTo": "users",
           "columnsFrom": [
             "userId"
@@ -187,73 +187,9 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "access_token": {
-          "name": "access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "token_type": {
-          "name": "token_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "scope": {
-          "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "id_token": {
-          "name": "id_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "session_state": {
-          "name": "session_state",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
-      "indexes": {
-        "userIdIndex": {
-          "name": "userIdIndex",
-          "columns": [
-            {
-              "expression": "userId",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "accounts_userId_users_id_fk": {
           "name": "accounts_userId_users_id_fk",
@@ -283,45 +219,76 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.sessions": {
-      "name": "sessions",
+    "public.forgotPassword_OTP": {
+      "name": "forgotPassword_OTP",
       "schema": "",
       "columns": {
-        "sessionToken": {
-          "name": "sessionToken",
+        "email": {
+          "name": "email",
           "type": "text",
           "primaryKey": true,
           "notNull": true
         },
-        "expires": {
-          "name": "expires",
-          "type": "timestamp",
+        "otp": {
+          "name": "otp",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "userId": {
-          "name": "userId",
-          "type": "uuid",
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "sessions_userId_users_id_fk": {
-          "name": "sessions_userId_users_id_fk",
-          "tableFrom": "sessions",
-          "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.signUp_OTP": {
+      "name": "signUp_OTP",
+      "schema": "",
+      "columns": {
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "otp": {
+          "name": "otp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         }
       },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -339,20 +306,26 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "passwordHash": {
-          "name": "passwordHash",
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hashedPassword": {
+          "name": "hashedPassword",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -364,23 +337,11 @@
           "notNull": true,
           "default": false
         },
-        "emailVerified": {
-          "name": "emailVerified",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "image": {
-          "name": "image",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },

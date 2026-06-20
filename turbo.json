@@ -7,7 +7,7 @@
         "^build"
       ],
       "env": [
-        "DATABASE_URL"
+        "DATABASE_URL" // need during build in nextjs so passing it through turbo firewall to nextjs
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
