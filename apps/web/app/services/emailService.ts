@@ -1,7 +1,7 @@
 
 "use server"
 
-import { db, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
+import { getDb, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
 import { eq } from "drizzle-orm";
 import { createTransport } from "nodemailer";
 
@@ -27,6 +27,7 @@ function generateOTP() {
 export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'createAccount') {
 
     try {
+        const db = getDb();
         // check user present or not
         const findUser = await db.select().from(usersTable).where(eq(usersTable.email, toEmail)).limit(1);
         if (!findUser.length) return { error: "User not found, Please sign-up." };

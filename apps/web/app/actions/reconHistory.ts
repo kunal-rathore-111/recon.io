@@ -1,7 +1,7 @@
 "use server"
 
 import { getSession } from "@/lib/session";
-import { db, ReconSnapshotsTable } from "@repo/database";
+import { getDb, ReconSnapshotsTable } from "@repo/database";
 import { desc, eq } from "drizzle-orm";
 
 
@@ -15,7 +15,7 @@ export async function fetchReconHistoryAction(recondId: string) {
     }
 
     try {
-
+        const db = getDb();
         const historyData = await db.select().from(ReconSnapshotsTable).where(eq(ReconSnapshotsTable.reconId, recondId)).orderBy(desc(ReconSnapshotsTable.createdAt));
         return { historyData };
 

@@ -2,7 +2,7 @@
 "use server"
 
 import { getSession } from "@/lib/session";
-import { db, ReconTable } from "@repo/database";
+import { getDb, ReconTable } from "@repo/database";
 import { and, eq } from "drizzle-orm";
 
 
@@ -14,7 +14,7 @@ export async function ToggleIntelligenceAction(reconId: string, isEnabled: boole
     if (!session) return { error: "Unauthorized, please login again." }
     const userId = session.userId as string;
     try {
-
+        const db = getDb();
         const updateResponse = await db.update(ReconTable).set({ intelligenceEnabled: isEnabled }).where(and(
             eq(ReconTable.userId, userId),
             eq(ReconTable.id, reconId))).returning();

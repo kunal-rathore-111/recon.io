@@ -2,7 +2,7 @@
 "use server"
 
 import { getSession } from "@/lib/session";
-import { db, ReconTable } from "@repo/database";
+import { getDb, ReconTable } from "@repo/database";
 import { desc, eq } from "drizzle-orm";
 
 
@@ -29,6 +29,7 @@ export async function getReconsAction() {
     const userId = session.userId as string;
 
     try {
+        const db = getDb();
         const data = await db.select().from(ReconTable).where(eq(ReconTable.userId, userId)).orderBy(desc(ReconTable.updatedAt));
 
         return { data, email: session.email as string, name: session.name as string };

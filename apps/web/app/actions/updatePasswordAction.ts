@@ -1,7 +1,7 @@
 "use server";
 
 import { deleteForgotPasswordSession, getForgotPasswordSession } from "@/lib/session";
-import { db, usersTable } from "@repo/database";
+import { getDb, usersTable } from "@repo/database";
 import { passwordValidation } from "@repo/validation";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
@@ -39,6 +39,7 @@ export async function updatePasswordAction(formData: FormData) {
                     // delete cookie-> hashPass-> store in db
                     await deleteForgotPasswordSession();
                     const hashedPassword = await bcrypt.hash(password, 10);
+                    const db = getDb();
                     await db.
                         update(usersTable)
                         .set({ hashedPassword: hashedPassword })

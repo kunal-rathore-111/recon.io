@@ -2,7 +2,7 @@
 "use server"
 
 import { getSession } from "@/lib/session";
-import { db, ReconTable } from "@repo/database";
+import { getDb, ReconTable } from "@repo/database";
 import { reconValidationFn } from "@repo/validation";
 
 
@@ -29,7 +29,7 @@ export async function addReconAction(previousState: any, formData: FormData) {
         if (!session) return { error: "Unauthorized, please sign in" };
 
         const userId = session.userId as string;
-
+        const db = getDb();
         const storeResponse = await db.insert(ReconTable).values({
             url, title, mission, type, intelligenceEnabled, status, userId
         }).returning();

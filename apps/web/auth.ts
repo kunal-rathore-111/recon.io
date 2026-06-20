@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import Discord from "next-auth/providers/discord"
 import Github from "next-auth/providers/github"
-import { accountsTable, db, usersTable } from "@repo/database"
+import { accountsTable, getDb, usersTable } from "@repo/database"
 import { and, eq } from "drizzle-orm"
 import { createSession } from "./lib/session"
 
@@ -15,6 +15,7 @@ export const result = NextAuth({
     callbacks: {
         async signIn({ user, account }) {
             try {
+                const db = getDb();
                 if (!user.email || !account) return false;
                 else {
                     // check in accounts-> if present set userId, else check in usersTable if there present create new in accountsTable, if not present in both then create in both and set userId

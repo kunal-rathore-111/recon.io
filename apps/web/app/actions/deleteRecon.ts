@@ -1,7 +1,7 @@
 "use server"
 
 import { getSession } from "@/lib/session";
-import { db, ReconTable } from "@repo/database";
+import { getDb, ReconTable } from "@repo/database";
 import { eq, and } from "drizzle-orm";
 
 export async function deleteReconAction(reconId: string) {
@@ -11,6 +11,7 @@ export async function deleteReconAction(reconId: string) {
     const userId = session.userId as string;
 
     try {
+        const db = getDb();
         const deleteResponse = await db.delete(ReconTable)
             .where(and(eq(ReconTable.id, reconId), eq(ReconTable.userId, userId)))
             .returning();

@@ -2,7 +2,7 @@
 "use server"
 
 import { createForgotPasswordSession, createSession, deleteSession } from "@/lib/session";
-import { db, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
+import { getDb, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
 import { signInValidationFn, signUpValidationFn } from "@repo/validation";
 import bcrypt from "bcryptjs";
 import { and, eq } from "drizzle-orm";
@@ -25,6 +25,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
     }
     else {
         try {
+            const db = getDb();
             const existingUser = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
             if (existingUser.length > 0) {
                 return { error: "User with this email already exists" }
@@ -72,6 +73,7 @@ export async function signInAction(prevState: any, formData: FormData) {
         return { error: validation.error.issues[0].message || "Invalid input" };
     }
     try {
+        const db = getDb();
         const existingUser = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
         if (existingUser.length === 0) {
@@ -116,6 +118,7 @@ export async function signOutAction() {
 
 export async function validateOTPAction(prevState: any, formData: FormData) {
     try {
+        const db = getDb();
         // check inputs->
         // find in table using email only->
         // check found->
@@ -147,6 +150,7 @@ export async function validateOTPAction(prevState: any, formData: FormData) {
         }
 
         else if (type === "createAccount") {
+            const db = getDb();
             find = await db
                 .select()
                 .from(signUp_OTP_Table)
