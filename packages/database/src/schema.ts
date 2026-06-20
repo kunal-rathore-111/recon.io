@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, primaryKey, serial, } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, primaryKey, serial, integer, } from "drizzle-orm/pg-core";
 
 // Users Table
 export const usersTable = pgTable("users", {
@@ -30,7 +30,7 @@ export const signUp_OTP_Table = pgTable("signUp_OTP", {
     email: text('email').primaryKey(),
     otp: text('otp').notNull(),
     expiresAt: timestamp('expiresAt', { mode: "date", withTimezone: true }).notNull(),
-    attempts: serial('attempts').default(0).notNull() // to delete after 3 attempts (using rate limiting is good but an attack with changing IP can crack so it's more safe)
+    attempts: integer('attempts').default(0).notNull() // to delete after 3 attempts (using rate limiting is good but an attack with changing IP can crack so it's more safe)
 })
 
 //  OTP TABLE FOR Forgot Password (will update with redis)
@@ -38,7 +38,7 @@ export const forgotPassword_OTP_Table = pgTable("forgotPassword_OTP", {
     email: text('email').primaryKey(),
     otp: text('otp').notNull(),
     expiresAt: timestamp('expiresAt', { mode: "date", withTimezone: true }).notNull(),
-    attempts: serial('attempts').default(0).notNull()
+    attempts: integer('attempts').default(0).notNull()
 })
 
 

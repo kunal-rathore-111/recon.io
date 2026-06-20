@@ -1,7 +1,7 @@
 
 "use server"
 
-import { db, forgotPassword_OTP_Table, signUp_OTP_Table } from "@repo/database";
+import { db, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
 import { eq } from "drizzle-orm";
 import { createTransport } from "nodemailer";
 
@@ -19,16 +19,21 @@ function generateOTP() {
     for (let i = 0; i < 6; i++) {
         otpCode += (Math.floor(Math.random() * 10));
     }
-    console.error(otpCode)
+    //  console.error(otpCode)
     return otpCode;
 }
 
 // send OTP function
 export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'createAccount') {
-    // generate OTP
-    const otpCode = generateOTP();
-    // store otp for the user in db and send email
+
     try {
+        // check user present or not
+        const findUser = await db.select().from(usersTable).where(eq(usersTable.email, toEmail)).limit(1);
+        if (!findUser.length) return { error: "User not found, Please sign-up." };
+
+        // generate OTP
+        const otpCode = generateOTP();
+        // store otp for the user in db and send email
 
         const currentTime = new Date();
         const newMinutes = currentTime.getMinutes() + 15;

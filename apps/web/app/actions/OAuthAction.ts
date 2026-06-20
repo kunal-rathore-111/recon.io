@@ -4,7 +4,7 @@ import { signIn } from "@/auth"
 
 
 interface OAuthSignInDTO {
-    authProvider: 'discord' | 'google' | 'github'
+    authProvider: string
 }
 
 export const OAuthSignIn = async (props: OAuthSignInDTO) => {

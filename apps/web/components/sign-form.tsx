@@ -17,7 +17,6 @@ import { useDispatch } from "react-redux"
 import { openLegalModal } from "@/lib/store/features/legal/legalSlice"
 import { signInAction, signUpAction } from "@/app/actions/authActions"
 import { LoaderIcon } from "./animated-icons/LoaderIcon"
-import { Home } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { OAuthSignIn } from "@/app/actions/OAuthAction"
@@ -25,7 +24,9 @@ import { GithubIcon } from "./animated-icons/GithubIcon"
 import { GoogleIcon } from "./animated-icons/GoogleIcon"
 import { animateByRef } from "@/lib/animateByRef"
 import { DiscordIcon } from "./animated-icons/DiscordIcon"
-
+import { HomeThemeButton } from "./homeThemeButton"
+import { Earth } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 
 
 
@@ -81,59 +82,79 @@ export function SignForm({
 
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 items-center justify-center", className)} {...props}>
+
+      <div className="text-xl flex items-center gap-1">
+        {<Earth className="inline-block" />} Recon-AI
+      </div>
 
       <LogoutNotifyComp />
 
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2 ">
-          <fieldset disabled={googleLoading || githubLoading || discordLoading || isPending}>
+      <Card className="overflow-hidden p-0  shadow-md min-w-lg shadow-black rounded-sm ">
+        <CardContent className=" p-0 ">
+
+          <fieldset className=" border-2 border-black rounded-sm  " disabled={googleLoading || githubLoading || discordLoading || isPending}>
+
             <div className="p-6 md:p-8 space-y-4">
-
+              <HomeThemeButton />
               <form onSubmit={handleSubmit}>
+                <FieldGroup className="space-y-2">
 
-                <FieldGroup>
-                  <Link href="/"><Home size={18} /></Link>
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <h1 className="text-2xl font-bold">
-                      {mode === "signup" ? "Create your account" : "Welcome back"}
-                    </h1>
+                  <div className="text-center ">
+
+                    <h1 className="text-3xl">{mode === 'signin' ? "Welcome Back" :
+                      "Create your account"} </h1>
+
                     <p className="text-sm text-balance text-muted-foreground">
                       {mode === "signup"
                         ? "Enter your details below to create your account"
                         : "Enter your email below to login to your account"}
                     </p>
                   </div>
-                  {mode === 'signup' &&
+
+
+                  <div className="space-y-5">
+
+                    {mode === 'signup' &&
+                      <Field>
+                        <FieldLabel htmlFor="name">
+                          Full name
+                        </FieldLabel>
+                        <Input
+                          id="name"
+                          name="name"
+                          type="text"
+                          placeholder="Your full name"
+                          required
+                          value={name}
+                          onChange={(e) => setname(e.target.value)}
+                        />
+                      </Field>
+                    }
+
                     <Field>
-                      <FieldLabel htmlFor="name">
-                        Full name
-                      </FieldLabel>
+                      <FieldLabel htmlFor="email">Email</FieldLabel>
                       <Input
-                        id="name"
-                        name="name"
-                        type="text"
-                        placeholder="Your full name"
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="m@example.com"
                         required
-                        value={name}
-                        onChange={(e) => setname(e.target.value)}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </Field>
-                  }
 
-                  <Field>
-                    <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </Field>
-                  <Field>
+                    {
+                      error && <p className="text-xs text-destructive mt-1">{error}</p>
+                    }
+                    {
+                      state?.error && <p className="text-red-500">
+                        {state.error}
+                      </p>
+                    }
+
+
                     <div className={cn("grid gap-4", mode === "signup" && "md:grid-cols-2")}>
                       <Field>
                         <div className="flex items-center justify-between">
@@ -168,84 +189,73 @@ export function SignForm({
                         </Field>
                       )}
                     </div>
-                    {error && <p className="text-xs text-destructive mt-1">{error}</p>}
-                    {mode === "signup" && (
-                      <FieldDescription>
-                        Must be at least 6 characters long.
-                      </FieldDescription>
-                    )}
-                    {
-                      state?.error && <p className="text-red-500">
-                        {state.error}
-                      </p>
-                    }
-                  </Field>
 
-                  <Field>
-                    <Button type="submit" className="w-full" disabled={isPending}>
-                      {isPending ? <LoaderIcon /> :
-                        mode === "signup" ?
-                          "Create Account" : "Login"}
-                    </Button>
-                  </Field>
-                  <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                    Or continue with
-                  </FieldSeparator>
+
+
+
+                    <Field>
+                      <Button type="submit" className="w-full" disabled={isPending}>
+                        {isPending ? <LoaderIcon /> :
+                          mode === "signup" ?
+                            "Create Account" : "Login"}
+                      </Button>
+                    </Field>
+                    <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+                      Or continue with
+                    </FieldSeparator>
+                  </div>
                 </FieldGroup>
               </form>
 
               <div className="grid grid-cols-3 gap-4 ">
-                {/* Github */}
-                <Button variant="outline" type="button" className="w-full"
-                  {...animateByRef(githubRef)}
-                  onClick={
-                    async () => {
-                      setGitHubLoading(true);
-                      await OAuthSignIn({ authProvider: "github" })
-                      setGitHubLoading(false);
-                    }}
-                >
-                  {githubLoading ?
-                    <LoaderIcon />
-                    :
+                {
+                  [
+                    {
+                      ref: githubRef,
+                      setLoading: setGitHubLoading,
+                      type: 'github',
+                      loadingState: githubLoading,
+                      icon: GithubIcon
+                    },
+                    {
+                      ref: googleRef,
+                      setLoading: setGoogleLoading,
+                      type: 'google',
+                      loadingState: googleLoading,
+                      icon: GoogleIcon
+                    },
 
-                    <GithubIcon ref={githubRef} />
-                  }
-                </Button>
+                    {
+                      ref: discordRef,
+                      setLoading: setDiscordLoading,
+                      type: 'discord',
+                      loadingState: discordLoading,
+                      icon: DiscordIcon
+                    }
 
-                {/* Google */}
+                  ].map((x) => {
+                    return <Tooltip key={x.type}>
+                      <TooltipTrigger asChild>
+                        <Button variant="outline" type="submit" className="w-full"
+                          {...animateByRef(x.ref)}
+                          onClick={
+                            async () => {
+                              x.setLoading(true);
+                              await OAuthSignIn({ authProvider: x.type })
+                              x.setLoading(false);
+                            }}
+                        >
+                          {x.loadingState ?
+                            <LoaderIcon />
+                            :
+                            <x.icon ref={x.ref} />
+                          }
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{x.type} Login</TooltipContent>
+                    </Tooltip>
+                  })}
 
-                <Button variant="outline" type="submit" className="w-full"
-                  {...animateByRef(googleRef)}
-                  onClick={
-                    async () => {
-                      setGoogleLoading(true);
-                      await OAuthSignIn({ authProvider: "google" })
-                      setGoogleLoading(false);
-                    }}
-                >
-                  {googleLoading ?
-                    <LoaderIcon />
-                    :
-                    <GoogleIcon ref={googleRef} />
-                  }
-                </Button>
-
-                {/* discord */}
-                <Button variant="outline" type="button" className="w-full"
-                  {...animateByRef(discordRef)}
-                  onClick={
-                    async () => {
-                      setDiscordLoading(true);
-                      await OAuthSignIn({ authProvider: "discord" })
-                      setDiscordLoading(false);
-                    }}>
-                  {discordLoading ?
-                    <LoaderIcon />
-                    :
-                    <DiscordIcon ref={discordRef} />
-                  }
-                </Button>
 
               </div>
               <FieldDescription className="text-center">
@@ -262,15 +272,9 @@ export function SignForm({
           </fieldset>
 
 
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/auth-bg.png"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
-          </div>
+
         </CardContent>
-      </Card >
+      </Card>
 
       <FieldDescription className="px-6 text-center">
         By clicking continue, you agree to our  {" "}

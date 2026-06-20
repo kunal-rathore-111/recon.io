@@ -24,6 +24,7 @@
   "registries": {
     "@ss-blocks": "https://shadcnstudio.com/r/blocks/{name}.json",
     "@magicui": "https://magicui.design/r/{name}",
-    "@shadcn-space": "https://shadcnspace.com/r/{name}.json"
+    "@shadcn-space": "https://shadcnspace.com/r/{name}.json",
+    "@shadcnuikit": "https://shadcnuikit.com/r/{name}.json"
   }
 }
