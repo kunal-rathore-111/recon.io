@@ -1,11 +1,11 @@
 
 "use server"
 
-import { createForgotPasswordSession, createSession, deleteSession } from "@/lib/session";
+import { createOTPSession, createSession, deleteSession } from "@/lib/session";
 import { getDb, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
 import { signInValidationFn, signUpValidationFn } from "@repo/validation";
 import bcrypt from "bcryptjs";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
@@ -47,8 +47,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
                             name: newUser[0].name
                         }
                     )
-                    redirect('/dashboard') // will throw error next-redirect
-
+                    redirect('/auth/sign-up/verify-otp')
                 }
             }
         } catch (error) {
@@ -202,7 +201,7 @@ export async function validateOTPAction(prevState: any, formData: FormData) {
 
                     if (type === "forgotPassword") {
                         // add cookie and redirect
-                        await createForgotPasswordSession({ email, otp });
+                        await createOTPSession({ email, otp, type: "forgotPassword" });
                         redirect('/auth/forgot-password/reset-password');
                     }
 

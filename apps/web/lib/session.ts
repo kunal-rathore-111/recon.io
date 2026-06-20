@@ -57,27 +57,44 @@ export async function getSession() {
 interface createForgotPasswordSessionDTO {
     email: string,
     otp: string,
+    type: "forgotPassword" | "signUp"
 }
 
-export async function createForgotPasswordSession(input: createForgotPasswordSessionDTO) {
+
+/* for both forgotPassword and signUpOTP */
+export async function createOTPSession(input: createForgotPasswordSessionDTO) {
     const cookieStore = await cookies();
 
     const jwtToken = await new SignJWT({ ...input }).setExpirationTime('10m').setProtectedHeader({ alg: "HS256" }).sign(key);
 
     cookieStore.delete('forgotPasswordSession'); // delete previous one if present
 
-    cookieStore.set("forgotPasswordSession", jwtToken, {
-        httpOnly: true,
-        maxAge: 10 * 60, // 10 mints
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-    });
+    cookieStore.set(
+        input.type === "forgotPassword" ?
+            "forgotPasswordSession" : "signUpSession", jwtToken,
+        {
+            httpOnly: true,
+            maxAge: 10 * 60, // 10 mints
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+        });
     return;
 }
 
-export async function getForgotPasswordSession() {
+
+export async function deleteOTPSession() {
     const cookieStore = await cookies();
-    const token = cookieStore.get('forgotPasswordSession')?.value;
+    cookieStore.delete("forgotPasswordSession");
+    cookieStore.delete("signUpSession");
+}
+
+
+
+export async function getOTPSession(type: "forgotPassword" | "signUp") {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(
+        type === "forgotPassword" ?
+            'forgotPasswordSession' : 'signUpSession')?.value;
     if (!token) return null;
     else {
         try {
@@ -87,10 +104,4 @@ export async function getForgotPasswordSession() {
             return null;
         }
     }
-}
-
-
-export async function deleteForgotPasswordSession() {
-    const cookieStore = await cookies();
-    cookieStore.delete("forgotPasswordSession");
 }

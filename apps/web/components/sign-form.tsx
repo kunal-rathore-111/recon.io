@@ -26,7 +26,7 @@ import { animateByRef } from "@/lib/animateByRef"
 import { DiscordIcon } from "./animated-icons/DiscordIcon"
 import { HomeThemeButton } from "./homeThemeButton"
 import { Earth } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
 
 
