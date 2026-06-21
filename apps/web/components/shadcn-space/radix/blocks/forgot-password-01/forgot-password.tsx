@@ -4,7 +4,6 @@ import { validateOTPAction } from "@/app/actions/authActions";
 import { sendOTP } from "@/app/services/emailService";
 import { LoaderIcon } from "@/components/animated-icons/LoaderIcon";
 import { HomeThemeButton } from "@/components/homeThemeButton";
-import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,7 +15,6 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ValidateOTP } from "@repo/validation";
-import { Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
@@ -98,7 +96,7 @@ const ForgotPasswordComp = () => {
       else {
         // make backend call to check OTP
         formData.append('type', 'forgotPassword');
-        const response = await validateOTPAction(prevState, formData);
+        const response = await validateOTPAction(formData);
         if (response?.error) {
           toast.error(response.error);
           return;

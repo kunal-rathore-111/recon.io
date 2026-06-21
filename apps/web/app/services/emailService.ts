@@ -104,18 +104,18 @@ export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'crea
         }
 
         const mail = {
-            from: `Recon - AI <${process.env.SMTP_USER}>`,
+            from: `Recon-AI <${process.env.SMTP_USER}>`,
             to: toEmail,
-            subject: `Verification Code`,
+            subject: `Hello, your verification code for Recon-AI is inside.`,
             html: `
-         <div style="font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; border: 1px solid #ddd; border-radius: 8px;">
-        <h2 style="color: #333;">Account Verification</h2>
-        <p>Your one-time security code is valid for 15 minutes:</p>
-        <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111; margin: 20px 0; border-radius: 4px;">
-          ${otpCode}
-        </div>
-        <p style="color: #777; font-size: 12px;">If you didn't request this code, please secure your account immediately.</p>
-      </div>`
+            <div style="font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; border: 1px solid #ddd; border-radius: 8px;">
+            <h2 style="color: #333;">Account Verification</h2>
+            <p>Your one-time security code is valid for 15 minutes:</p>
+            <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111; margin: 20px 0; border-radius: 4px;">
+            ${otpCode}
+            </div>
+            <p style="color: #777; font-size: 12px;">If you didn't request this code, please secure your account immediately.</p>
+        </div>`
         }
 
         await transporter.sendMail(mail);

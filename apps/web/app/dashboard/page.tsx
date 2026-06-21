@@ -13,8 +13,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   }
   const email = response.email ?? "example@gmail.com";
   const name = response.name ?? "example user";
+  const image = response.image ?? 'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-1.png'
 
 
 
-  return <DashboardClientComp recons={response.data} email={email} name={name} searchQuery={search} />
+  return <DashboardClientComp recons={response.data} email={email} name={name} searchQuery={search} image={image} />
 }

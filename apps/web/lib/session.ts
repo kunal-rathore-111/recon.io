@@ -7,7 +7,8 @@ import { cookies } from "next/headers";
 interface jwtInput {
     email: string,
     userId: string,
-    name: string
+    name: string,
+    image?: string
 }
 const jwtSecret = process.env.JWT_SECRET || "#!D#G%,kl3I";
 
@@ -54,18 +55,18 @@ export async function getSession() {
 }
 
 
-interface createForgotPasswordSessionDTO {
+interface createOTPSessionDTO {
     email: string,
-    otp: string,
+    otp?: string,
     type: "forgotPassword" | "signUp"
 }
 
 
 /* for both forgotPassword and signUpOTP */
-export async function createOTPSession(input: createForgotPasswordSessionDTO) {
+export async function createOTPSession(input: createOTPSessionDTO) {
     const cookieStore = await cookies();
 
-    const jwtToken = await new SignJWT({ ...input }).setExpirationTime('10m').setProtectedHeader({ alg: "HS256" }).sign(key);
+    const jwtToken = await new SignJWT({ ...input }).setExpirationTime('30m').setProtectedHeader({ alg: "HS256" }).sign(key);
 
     cookieStore.delete('forgotPasswordSession'); // delete previous one if present
 
@@ -74,7 +75,7 @@ export async function createOTPSession(input: createForgotPasswordSessionDTO) {
             "forgotPasswordSession" : "signUpSession", jwtToken,
         {
             httpOnly: true,
-            maxAge: 10 * 60, // 10 mints
+            maxAge: 30 * 60, // 10 mints
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
         });
@@ -90,11 +91,26 @@ export async function deleteOTPSession() {
 
 
 
-export async function getOTPSession(type: "forgotPassword" | "signUp") {
+export async function getForgotPasswordSession() {
     const cookieStore = await cookies();
     const token = cookieStore.get(
-        type === "forgotPassword" ?
-            'forgotPasswordSession' : 'signUpSession')?.value;
+        'forgotPasswordSession')?.value;
+    if (!token) return null;
+    else {
+        try {
+            const result = await jwtVerify(token, key);
+            return result.payload;
+        } catch (error) {
+            return null;
+        }
+    }
+}
+
+export async function getSignUpSession() {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(
+        'signUpSession')?.value;
+
     if (!token) return null;
     else {
         try {

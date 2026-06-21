@@ -76,7 +76,7 @@ export function SignForm({
 
   useEffect(() => {
     const error = searchParam.get('error');
-    if (error) toast.error("Something went wrong, please try again.");
+    if (error) toast.error(error ?? "Something went wrong, please try again.");
     router.replace(pathname);
   }, [])
 
