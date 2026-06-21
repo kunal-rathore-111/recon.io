@@ -5,6 +5,8 @@ import { getDb, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@
 import { eq } from "drizzle-orm";
 import { createTransport } from "nodemailer";
 
+import crypto from "crypto"
+
 const transporter = createTransport({
     service: "gmail",
 
@@ -14,14 +16,6 @@ const transporter = createTransport({
     }
 });
 
-function generateOTP() {
-    let otpCode = "";
-    for (let i = 0; i < 6; i++) {
-        otpCode += (Math.floor(Math.random() * 10));
-    }
-    //  console.error(otpCode)
-    return otpCode;
-}
 
 // send OTP function
 export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'createAccount') {
@@ -33,7 +27,7 @@ export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'crea
         if (!findUser.length) return { error: "User not found, Please sign-up." };
 
         // generate OTP
-        const otpCode = generateOTP();
+        const otpCode = crypto.randomInt(100000, 1000000).toString();
         // store otp for the user in db and send email
 
         const currentTime = new Date();
@@ -89,7 +83,7 @@ export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'crea
                         { otp: otpCode, expiresAt: expiryDate }
                     )
                     .where(
-                        eq(forgotPassword_OTP_Table.email, toEmail)
+                        eq(signUp_OTP_Table.email, toEmail)
                     );
             }
             else {

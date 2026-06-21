@@ -5,7 +5,6 @@ import {
     Blocks,
     ChartNoAxesCombinedIcon,
     ChevronDown,
-    Globe,
     Globe2,
     LucideHome,
     LucideIcon,
@@ -21,12 +20,9 @@ import {
     SidebarContent,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
-    SidebarMenuBadge,
     SidebarMenuButton,
-    SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { reconDataResponseType } from '@/app/actions/getRecons'
 import Link from 'next/link'
@@ -34,6 +30,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from './ui/dro
 import { useDispatch } from 'react-redux'
 import { setLongSelectedCard } from '@/lib/store/features/ui/uiSlice'
 import { trimString } from './dashboardComps/CardComp'
+import { CollapsibleContent, Collapsible, CollapsibleTrigger } from './ui/collapsible'
+import { Button } from './ui/button'
 
 interface DashboardSidebarProps {
     recons: reconDataResponseType[];
@@ -156,22 +154,23 @@ function RenderTypesDropDownComp({ reconsByType, type, Icon }: RenderTypesDropDo
 
     const dispatch = useDispatch();
 
-    return <DropdownMenu >
-        <DropdownMenuTrigger asChild className='group'>
-            <div className='flex gap-2 border p-2 rounded capitalize cursor-pointer'>
-                <Icon size={16} />
-                {type}
-                <ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" size={17} />
-            </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className='text-xs '>
+    return <Collapsible >
+        <CollapsibleTrigger asChild >
+            <Button variant={"link"} className="hover:no-underline group w-full justify-start transition-colors duration-200 bg-zinc-200 rounded-sm  capitalize dark:text-black dark:bg-zinc-300 dark:hover:bg-black/10 dark:hover:border dark:hover:border-white hover:text-white dark:hover:text-white hover:bg-black"
+            >
+                <Icon size={16} /> {type}
+                <ChevronDown className="ml-auto group-data-[state=open]:rotate-180" />
+            </Button>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent className='m-2 rounded-sm border text-xs'>
             {
                 reconsByType[type].length > 0 ?
                     reconsByType[type].map((recon, idx) => {
                         const TrimmedTitle = trimString(recon.title)
                         return <div
                             key={recon.id}
-                            className='p-1 cursor-pointer border-b ' onClick={() => dispatch(setLongSelectedCard(recon))}>
+                            className='py-1 cursor-pointer border-b hover:text-white hover:bg-black dark:hover:bg-zinc-100/80 dark:hover:text-black rounded-sm  px-3' onClick={() => dispatch(setLongSelectedCard(recon))}>
                             {idx + 1}.   {TrimmedTitle}
                         </div>
                     }) :
@@ -179,7 +178,6 @@ function RenderTypesDropDownComp({ reconsByType, type, Icon }: RenderTypesDropDo
                         No content Available
                     </div>
             }
-        </DropdownMenuContent>
-
-    </DropdownMenu>
+        </CollapsibleContent>
+    </Collapsible >
 }

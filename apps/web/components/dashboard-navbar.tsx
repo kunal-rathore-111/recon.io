@@ -58,8 +58,8 @@ export function DashboardNavbar() {
                 </div>
                 <div>
                     <ButtonGroup>
-                        <InputGroup >
-                            <InputGroupAddon align={"inline-end"}>
+                        <InputGroup className='overflow-hidden' >
+                            <InputGroupAddon align={"inline-end"} >
                                 {searchValue &&
                                     <div className='cursor-pointer'
                                         onClick={() => {
@@ -70,7 +70,7 @@ export function DashboardNavbar() {
                                     </div>}
                             </InputGroupAddon>
                             <Input id="input-button-group" placeholder="Search here"
-                                className='border-0 focus:border-0 '
+                                className='border-0 focus-visible:ring-0'
                                 onChange={(e) => {
                                     setSearchValue(e.target.value);
                                 }}
@@ -80,8 +80,8 @@ export function DashboardNavbar() {
                         </InputGroup>
                         <Button variant="outline"
                             onClick={() => handleSearch(searchValue)}>Search</Button>
-                    </ButtonGroup>
-                </div>
+                    </ButtonGroup >
+                </div >
                 <div className='flex items-center gap-4 justify-center'>
                     <button className='bg-zinc-800 text-white p-2 rounded text-sm flex items-center gap-0.5 dark:text-black dark:bg-zinc-300'
                         onClick={() => dispatch(setAddReconReducer())}>
@@ -101,7 +101,7 @@ export function DashboardNavbar() {
                         }
                     />
                 </div>
-            </div>
-        </header>
+            </div >
+        </header >
     )
 }

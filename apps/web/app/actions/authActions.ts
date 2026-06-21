@@ -45,7 +45,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
                     await createOTPSession(
                         {
                             email: newUser[0].email,
-                            type: "signUp"
+                            type: "createAccount"
                         }
                     )
                     await sendOTP(email, 'createAccount');
@@ -83,7 +83,7 @@ export async function signInAction(prevState: any, formData: FormData) {
         }
         else if (!existingUser[0].isVerified) {
             await sendOTP(email, 'createAccount');
-            await createOTPSession({ email, type: "signUp" });
+            await createOTPSession({ email, type: "createAccount" });
             redirect('/auth/verify-otp?error=Please verify otp first.')
         }
         else {
