@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { ActionState } from "@/lib/type";
 import { ValidateOTP } from "@repo/validation";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -62,50 +63,43 @@ const ForgotPasswordComp = () => {
     }
   }
 
-  const [state, formAction, isPending] = useActionState(handleSubmit, null);
+  const [state, formAction, isPending] = useActionState<ActionState, FormData>(handleSubmit, null);
 
   async function handleSubmit(prevState: any, formData: FormData) {
 
     if (!email) {
-      toast.error("Email input is empty.");
-      return;
+      return { error: "Email input is empty." };
     }
 
     else if (!showOTPInput) {
       // send OTP function call here
-      const response = await sendOTP(email, 'forgotPassword');
-
-      if (response.error) {
-        toast.error(response.error);
-        return;
-      }
-      else {
-        toast(response.message);
-
-        // send OTP then show otp input
-        setShowOTPInput(true);
-        setShowUpdateEmailButton(true);
-      }
+      return await sendOTP(email, 'forgotPassword');
     }
     else { // if above all fails means validate OTP and redirect to update password form
       const ZodOTPResult = ValidateOTP(OTP);
       if (!ZodOTPResult.success) { // need to update with zod validation
-        toast.error(ZodOTPResult.error.issues[0].message);
-        return;
+        return { error: ZodOTPResult.error.issues[0].message };
       }
       else {
         // make backend call to check OTP
         formData.append('type', 'forgotPassword');
-        const response = await validateOTPAction(formData);
-        if (response?.error) {
-          toast.error(response.error);
-          return;
-        }
+        return await validateOTPAction(formData);
       }
     }
 
   }
 
+
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+    if (state?.message) {
+      toast(state.message);
+      setShowOTPInput(true);
+      setShowUpdateEmailButton(true);
+    }
+  }, [state])
 
 
   return (

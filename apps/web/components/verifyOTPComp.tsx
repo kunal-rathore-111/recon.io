@@ -50,11 +50,7 @@ export function VerifyOTPComp({ email }: { email: string }) {
             // call backend to verify otp 
             formData.append('email', email);
             formData.append('type', "createAccount");
-            const response = await validateOTPAction(formData);
-            if (response?.error) {
-                toast.error(response.error);
-                return;
-            }
+            return await validateOTPAction(formData);
         }
     }
 
@@ -64,6 +60,14 @@ export function VerifyOTPComp({ email }: { email: string }) {
             router.push(pathname);
         }
     }, [])
+
+
+    useEffect(() => {
+        if (state?.error) {
+            toast.error(state.error);
+            return;
+        }
+    }, [state])
 
     return <div className="h-screen flex items-center justify-center dark:bg-background  bg-zinc-100">
         <Card className="px-5 w-95 md:w-lg py-7 mb-20 pb-20 dark:bg-black shadow-lg dark:shadow-zinc-800 shadow-black/40 border rounded-sm">

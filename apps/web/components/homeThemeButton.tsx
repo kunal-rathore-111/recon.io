@@ -16,18 +16,11 @@ export function ThemeButton() {
 
 }
 
-export function HomeThemeButton({ centerText }: { centerText?: string }) {
+export function HomeThemeButton() {
 
     return <div className="flex gap-2 justify-between">
 
         <HomeButton />
-        {centerText && <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">
-                {centerText}
-            </h1>
-
-        </div>}
-
         <ThemeButton />
     </div>
 

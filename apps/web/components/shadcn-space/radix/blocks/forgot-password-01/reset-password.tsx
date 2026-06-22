@@ -10,7 +10,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PasswordComponent } from "../../../../PasswordComp";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { passwordValidation } from "@repo/validation";
 import { toast } from "sonner";
 import { updatePasswordAction } from "@/app/actions/updatePasswordAction";
@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { ActionState } from "@/lib/type";
 
 interface ResetPasswordCompProps {
   email: string;
@@ -26,7 +27,7 @@ interface ResetPasswordCompProps {
 const ResetPasswordComp = ({ email }: ResetPasswordCompProps) => {
 
   const router = useRouter();
-  const [state, formAction, isPending] = useActionState(handleSubmit, null);
+  const [state, formAction, isPending] = useActionState<ActionState, FormData>(handleSubmit, null);
 
   const [password1, setPassword1] = useState<string>("");
   const [password2, setPassword2] = useState<string>("");
@@ -38,30 +39,33 @@ const ResetPasswordComp = ({ email }: ResetPasswordCompProps) => {
     // validate password1 using zod then compare both passwords
     const validatePassword1 = passwordValidation(password1);
     if (!validatePassword1.success) {
-      toast.error(`${validatePassword1.error.issues[0].message}.`)
-      return;
+      return { error: validatePassword1.error.issues[0].message }
     }
 
     // then match both
     if (password1 !== password2) {
-      toast.error("Both password did not matched.");
-      return;
+      return { error: "Both password did not matched." };
+
     }
 
     // then callbackend
     else {
-      const response = await updatePasswordAction(formData);
-
-      if (response?.error) {
-        toast.error(response.error);
-        return;
-      }
-      else if (response?.message) {
-        toast.success(response.message);
-        router.push(`/auth/sign-in?email=${email}`);
-      }
+      return await updatePasswordAction(formData);
     }
   }
+
+
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+    if (state?.message) {
+      toast.success(state.message);
+      router.push(`/auth/sign-in?email=${email}`);
+    }
+  }, [state]);
+
+
   return (
     <section className="h-screen bg-black/90 dark:bg-white
      overflow-hidden lg:py-20 sm:py-16 py-8 relative flex items-center justify-center">
