@@ -22,6 +22,6 @@ export async function deleteReconAction(reconId: string) {
         return { success: true };
     } catch (error) {
         console.error("Error in deleteReconAction- ", error);
-        return { error: "Failed to delete target, please try again" };
+        return { error: "Failed to delete target, please try again." };
     }
 }

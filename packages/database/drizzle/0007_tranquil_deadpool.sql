@@ -1,0 +1,3 @@
+ALTER TABLE "reconSnapshotsTable" ADD COLUMN "userId" uuid NOT NULL;--> statement-breakpoint
+ALTER TABLE "reconSnapshotsTable" ADD CONSTRAINT "reconSnapshotsTable_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "reconSnapshots_userId_reconId_idx" ON "reconSnapshotsTable" USING btree ("reconId","userId");

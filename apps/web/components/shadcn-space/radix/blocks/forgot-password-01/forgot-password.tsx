@@ -109,19 +109,19 @@ const ForgotPasswordComp = () => {
 
 
   return (
-    <section className="h-screen bg-black  dark:bg-white lg:py-20 sm:py-16 py-8 relative flex items-center justify-center">
+    <section className="h-screen pb-40 dark:bg-black bg-white lg:py-20 sm:py-16 py-8 relative flex items-center justify-center">
       <div className="py-10 md:py-20 max-w-lg px-4 sm:px-0 mx-auto w-full">
         <Card className="px-6 py-4 sm:p-12 relative gap-6 shadow-xs dark:shadow-md 
-dark:shadow-black shadow-white" >
+dark:shadow-white  shadow-black" >
           <CardHeader className="text-center gap-6 p-0">
 
             <HomeThemeButton />
 
             <div className="flex flex-col gap-1">
-              <CardTitle className="text-2xl font-medium text-card-foreground">
+              <CardTitle className="text-2xl font-medium ">
                 Forgot your password?
               </CardTitle>
-              <CardDescription className="text-sm font-normal text-muted-foreground">
+              <CardDescription className="text-sm font-normal ">
                 Please enter the email address associated with your account and
                 we will email you an OTP to reset your password.
               </CardDescription>
@@ -165,7 +165,7 @@ dark:shadow-black shadow-white" >
                         readOnly={showOTPInput}
                         placeholder="example@gmail.com"
                         required
-                        className="dark:bg-background h-9"
+                        className=" h-9"
                       />
                     </Field>
                   </div>
@@ -187,6 +187,7 @@ dark:shadow-black shadow-white" >
                               &&
                               <Button
                                 variant={"link"}
+                                type="button"
                                 onClick={() => {
                                   startTransition(async () => await resendOTP())
                                 }}
@@ -215,18 +216,18 @@ dark:shadow-black shadow-white" >
 
                     {
                       isPending || isResending ?
-                        <Button size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82"
+                        <Button size={"lg"} className="rounded-xl h-10 border-white dark:border-black"
                         >
                           <LoaderIcon />
                         </Button>
                         :
                         showOTPInput ?
-                          <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-black/82 dark:hover:bg-white/80 dark:bg-white"
+                          <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer hover:bg-zinc-200 hover:text-black dark:hover:bg-black dark:hover:text-white"
                           >
                             Submit
                           </Button>
                           :
-                          <Button type="submit" size={"lg"} className="rounded-xl h-10 cursor-pointer "
+                          <Button type="submit" size={"lg"} className="hover:bg-zinc-200 hover:text-black rounded-xl h-10 cursor-pointer dark:hover:bg-black dark:hover:text-white "
                           >
                             Send OTP
                           </Button>
@@ -237,7 +238,7 @@ dark:shadow-black shadow-white" >
                       className="bg-black hover:bg-black/82
                       dark:bg-white dark:text-black
                     rounded-xl dark:hover:bg-white/80
-                    text-white p-2 cursor-pointer text-center"
+                    text-white p-2 cursor-pointer text-center  "
                     >
                       Back to Login
                     </Link>

@@ -16,15 +16,15 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import ProfileDropdown from '@/components/shadcn-studio/blocks/dropdown-profile'
-import { AnimatedThemeToggler } from './ui/animated-theme-toggler'
 import { setAddReconReducer } from '@/lib/store/features/addRecon/addReconSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { Input } from './ui/input'
 import { ButtonGroup } from './ui/button-group'
 import { useState } from 'react'
-import { redirect, useRouter } from 'next/navigation'
-import { InputGroup, InputGroupAddon, InputGroupInput } from './ui/input-group'
+import { useRouter } from 'next/navigation'
+import { InputGroup, InputGroupAddon } from './ui/input-group'
 import { RootState } from '@/lib/store/store'
+import { ThemeButton } from './homeThemeButton'
 
 
 
@@ -83,16 +83,16 @@ export function DashboardNavbar() {
                     </ButtonGroup >
                 </div >
                 <div className='flex items-center gap-4 justify-center'>
-                    <button className='bg-zinc-800 text-white p-2 rounded text-sm flex items-center gap-0.5 dark:text-black dark:bg-zinc-300'
+                    <button className='bg-zinc-800 text-white p-2 rounded text-sm flex items-center gap-0.5 dark:text-black dark:bg-zinc-300 shadow-sm shadow-black dark:shadow-white hover:shadow-none transition hover:scale-97 duration-300 w-9 h-9 md:w-auto md:h-auto justify-center'
                         onClick={() => dispatch(setAddReconReducer())}>
-                        Add Recon <Plus size={15} className='inline-block' />
+                        <span className='hidden lg:block'>Add Recon</span> <Plus size={15} className='inline-block' />
                     </button>
-                    <div className='flex items-center p-2 bg-black/10 rounded-md dark:bg-zinc-300 dark:text-black'>
-                        <AnimatedThemeToggler />
+                    <div className=''>
+                        <ThemeButton />
                     </div>
                     <ProfileDropdown
                         trigger={
-                            <Button variant='ghost' size='icon' className='size-9.5'>
+                            <Button variant='ghost' size='icon' className='size-9.5 shadow-sm shadow-black hover:shadow-none transition hover:scale-97 duration-300 w-9 h-9 rounded-full dark:shadow-white'>
                                 <Avatar className='size-9.5 rounded-md'>
                                     <AvatarImage src={image} />
                                     <AvatarFallback>JD</AvatarFallback>

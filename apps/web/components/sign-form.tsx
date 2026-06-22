@@ -90,7 +90,7 @@ export function SignForm({
 
       <LogoutNotifyComp />
 
-      <Card className="overflow-hidden p-0  shadow-md min-w-lg shadow-black rounded-sm ">
+      <Card className="overflow-hidden p-0  shadow-md w-95  md:min-w-lg shadow-black rounded-sm ">
         <CardContent className=" p-0 ">
 
           <fieldset className=" border-2 border-black rounded-sm  " disabled={googleLoading || githubLoading || discordLoading || isPending}>

@@ -66,7 +66,7 @@ export function VerifyOTPComp({ email }: { email: string }) {
     }, [])
 
     return <div className="h-screen flex items-center justify-center dark:bg-background  bg-zinc-100">
-        <Card className="px-5 w-lg py-7 mb-20 pb-10 dark:bg-black shadow-lg dark:shadow-zinc-800 shadow-black/40 border rounded-sm">
+        <Card className="px-5 w-95 md:w-lg py-7 mb-20 pb-20 dark:bg-black shadow-lg dark:shadow-zinc-800 shadow-black/40 border rounded-sm">
             <CardContent >
 
                 <fieldset disabled={isResending || isPending}>
