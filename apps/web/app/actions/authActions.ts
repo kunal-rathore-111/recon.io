@@ -1,13 +1,15 @@
 
 "use server"
 
-import { createForgotPasswordSession, createSession, deleteSession } from "@/lib/session";
+import { createOTPSession, createSession, deleteOTPSession, deleteSession } from "@/lib/session";
 import { getDb, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
 import { signInValidationFn, signUpValidationFn } from "@repo/validation";
 import bcrypt from "bcryptjs";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import { X } from "lucide-react";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
+import { sendOTP } from "../services/emailService";
 
 
 
@@ -37,18 +39,17 @@ export async function signUpAction(prevState: any, formData: FormData) {
                     name, email, hashedPassword: hashedPass,
                 }).returning();
 
-                if (!newUser[0]) return { error: "Failed to create users" }
+                if (!newUser.length) return { error: "Failed to create new user, Please try again." }
 
                 else {
-                    await createSession(
+                    await createOTPSession(
                         {
                             email: newUser[0].email,
-                            userId: newUser[0].id,
-                            name: newUser[0].name
+                            type: "createAccount"
                         }
                     )
-                    redirect('/dashboard') // will throw error next-redirect
-
+                    await sendOTP(email, 'createAccount');
+                    redirect(`/auth/verify-otp`);
                 }
             }
         } catch (error) {
@@ -76,10 +77,15 @@ export async function signInAction(prevState: any, formData: FormData) {
         const db = getDb();
         const existingUser = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
 
+
         if (existingUser.length === 0) {
             return { error: `User with ${email} not found` }
         }
-
+        else if (!existingUser[0].isVerified) {
+            await sendOTP(email, 'createAccount');
+            await createOTPSession({ email, type: "createAccount" });
+            redirect('/auth/verify-otp?error=Please verify otp first.')
+        }
         else {
             // check password
             if (!existingUser[0].hashedPassword) return { error: "No password present, please try forgot password" };
@@ -93,7 +99,8 @@ export async function signInAction(prevState: any, formData: FormData) {
                 await createSession({
                     email: existingUser[0].email,
                     userId: existingUser[0].id,
-                    name: existingUser[0].name
+                    name: existingUser[0].name,
+                    image: existingUser[0].image ?? ''
                 });
 
                 redirect("/dashboard")
@@ -116,7 +123,7 @@ export async function signOutAction() {
 }
 
 
-export async function validateOTPAction(prevState: any, formData: FormData) {
+export async function validateOTPAction(formData: FormData) {
     try {
         const db = getDb();
         // check inputs->
@@ -135,6 +142,7 @@ export async function validateOTPAction(prevState: any, formData: FormData) {
         const otp = formData.get("otp") as string;
 
         const type = formData.get("type");
+        console.log(email, otp, type);
         if (!email || !otp || !type) {
             return { error: "Input field is empty" };
         }
@@ -202,14 +210,20 @@ export async function validateOTPAction(prevState: any, formData: FormData) {
 
                     if (type === "forgotPassword") {
                         // add cookie and redirect
-                        await createForgotPasswordSession({ email, otp });
+                        await createOTPSession({ email, otp, type: "forgotPassword" });
                         redirect('/auth/forgot-password/reset-password');
                     }
 
                     else if (type === "createAccount") {
 
-                        await db.update(usersTable).set({ isVerified: true }).where(eq(usersTable.email, email));
-                        return { success: true };
+                        const user = await db.update(usersTable).set({ isVerified: true }).where(eq(usersTable.email, email)).returning();
+                        await deleteOTPSession();
+                        await createSession({
+                            email: user[0].email,
+                            name: user[0].name,
+                            userId: user[0].id
+                        });
+                        redirect('/dashboard');
                     }
                 }
                 else {

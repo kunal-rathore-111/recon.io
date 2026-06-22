@@ -60,7 +60,7 @@ export const result = NextAuth({
                         })
                     }
                     // finally create session
-                    await createSession({ email: user.email, userId, name: user.name || "unknown" });
+                    await createSession({ email: user.email, userId, name: user.name || "unknown", image: user.image ?? "" });
 
                     return true;
                 }

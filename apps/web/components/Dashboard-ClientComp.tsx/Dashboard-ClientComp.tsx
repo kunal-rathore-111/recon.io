@@ -28,15 +28,16 @@ interface recons {
     updatedAt: Date;
 }
 
-export function DashboardClientComp({ recons, email, name, searchQuery }: {
-    email: string, name: string, searchQuery: string | null, recons: recons[] | undefined
+export function DashboardClientComp({ recons, email, name, image, searchQuery }: {
+    email: string, name: string, image: string, searchQuery: string | null, recons: recons[] | undefined,
+
 }) {
 
     const dispatch = useDispatch();
 
 
     if (email && name) {
-        dispatch(setUserEmailAndUsername({ email: email, name: name }))
+        dispatch(setUserEmailAndUsername({ email: email, name: name, image: image }))
     }
 
 

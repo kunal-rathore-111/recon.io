@@ -2,7 +2,7 @@
 
 import { getSession } from "@/lib/session";
 import { getDb, ReconSnapshotsTable } from "@repo/database";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 
 
@@ -16,7 +16,10 @@ export async function fetchReconHistoryAction(recondId: string) {
 
     try {
         const db = getDb();
-        const historyData = await db.select().from(ReconSnapshotsTable).where(eq(ReconSnapshotsTable.reconId, recondId)).orderBy(desc(ReconSnapshotsTable.createdAt));
+        const historyData = await db.select().from(ReconSnapshotsTable).where(and(
+            eq(ReconSnapshotsTable.reconId, recondId),
+            eq(ReconSnapshotsTable.userId, session.userId as string))
+        ).orderBy(desc(ReconSnapshotsTable.createdAt));
         return { historyData };
 
     } catch (error) {

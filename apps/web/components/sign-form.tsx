@@ -26,7 +26,7 @@ import { animateByRef } from "@/lib/animateByRef"
 import { DiscordIcon } from "./animated-icons/DiscordIcon"
 import { HomeThemeButton } from "./homeThemeButton"
 import { Earth } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 
 
 
@@ -76,7 +76,7 @@ export function SignForm({
 
   useEffect(() => {
     const error = searchParam.get('error');
-    if (error) toast.error("Something went wrong, please try again.");
+    if (error) toast.error(error ?? "Something went wrong, please try again.");
     router.replace(pathname);
   }, [])
 

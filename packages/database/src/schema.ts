@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, primaryKey, serial, integer, } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, jsonb, boolean, varchar, pgEnum, primaryKey, serial, integer, index, } from "drizzle-orm/pg-core";
 
 // Users Table
 export const usersTable = pgTable("users", {
@@ -60,14 +60,26 @@ export const ReconTable = pgTable("recon", {
 // Recon Snapshots Table - (The History of missions)
 export const ReconSnapshotsTable = pgTable("reconSnapshotsTable", {
     id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid('userId').references(() => usersTable.id, {
+        onDelete: "cascade"
+    }).notNull(),
     reconId: uuid("reconId").references(() => ReconTable.id, { onDelete: "cascade" }).notNull(),
     data: jsonb("data"),       // Extracted Raw Intel
     insight: text("insight"),  // Intelligence Analysis by AI
     status: varchar("status", { length: 50 }), // CHANGE / NO CHANGE (keeping varchar so can be anything like average, no change, updated etc.)
     createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => [
+    index('reconSnapshots_userId_reconId_idx').on(table.reconId, table.userId)
+]
+);
 
 // --- RELATIONS ---
+
+export const usersRelation = relations(usersTable, ({ one, many }) => ({
+    recons: many(ReconTable),
+    snapshots: many(ReconSnapshotsTable)
+}))
+
 export const ReconRelation = relations(ReconTable, ({ one, many }) => ({
     user: one(usersTable, {
         fields: [ReconTable.userId],
@@ -81,4 +93,8 @@ export const ReconSnapshotsRelation = relations(ReconSnapshotsTable, ({ one }) =
         fields: [ReconSnapshotsTable.reconId],
         references: [ReconTable.id],
     }),
+    users: one(usersTable, {
+        fields: [ReconSnapshotsTable.userId],
+        references: [usersTable.id]
+    })
 }));

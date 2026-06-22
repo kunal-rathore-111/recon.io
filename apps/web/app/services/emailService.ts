@@ -5,6 +5,8 @@ import { getDb, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@
 import { eq } from "drizzle-orm";
 import { createTransport } from "nodemailer";
 
+import crypto from "crypto"
+
 const transporter = createTransport({
     service: "gmail",
 
@@ -14,14 +16,6 @@ const transporter = createTransport({
     }
 });
 
-function generateOTP() {
-    let otpCode = "";
-    for (let i = 0; i < 6; i++) {
-        otpCode += (Math.floor(Math.random() * 10));
-    }
-    //  console.error(otpCode)
-    return otpCode;
-}
 
 // send OTP function
 export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'createAccount') {
@@ -33,7 +27,7 @@ export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'crea
         if (!findUser.length) return { error: "User not found, Please sign-up." };
 
         // generate OTP
-        const otpCode = generateOTP();
+        const otpCode = crypto.randomInt(100000, 1000000).toString();
         // store otp for the user in db and send email
 
         const currentTime = new Date();
@@ -89,7 +83,7 @@ export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'crea
                         { otp: otpCode, expiresAt: expiryDate }
                     )
                     .where(
-                        eq(forgotPassword_OTP_Table.email, toEmail)
+                        eq(signUp_OTP_Table.email, toEmail)
                     );
             }
             else {
@@ -104,18 +98,18 @@ export async function sendOTP(toEmail: string, OTPType: 'forgotPassword' | 'crea
         }
 
         const mail = {
-            from: `Recon - AI <${process.env.SMTP_USER}>`,
+            from: `Recon-AI <${process.env.SMTP_USER}>`,
             to: toEmail,
-            subject: `Verification Code`,
+            subject: `Hello, your verification code for Recon-AI is inside.`,
             html: `
-         <div style="font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; border: 1px solid #ddd; border-radius: 8px;">
-        <h2 style="color: #333;">Account Verification</h2>
-        <p>Your one-time security code is valid for 15 minutes:</p>
-        <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111; margin: 20px 0; border-radius: 4px;">
-          ${otpCode}
-        </div>
-        <p style="color: #777; font-size: 12px;">If you didn't request this code, please secure your account immediately.</p>
-      </div>`
+            <div style="font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; border: 1px solid #ddd; border-radius: 8px;">
+            <h2 style="color: #333;">Account Verification</h2>
+            <p>Your one-time security code is valid for 15 minutes:</p>
+            <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111; margin: 20px 0; border-radius: 4px;">
+            ${otpCode}
+            </div>
+            <p style="color: #777; font-size: 12px;">If you didn't request this code, please secure your account immediately.</p>
+        </div>`
         }
 
         await transporter.sendMail(mail);

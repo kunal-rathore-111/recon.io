@@ -1,6 +1,6 @@
 "use server";
 
-import { deleteForgotPasswordSession, getForgotPasswordSession } from "@/lib/session";
+import { deleteOTPSession, getForgotPasswordSession } from "@/lib/session";
 import { getDb, usersTable } from "@repo/database";
 import { passwordValidation } from "@repo/validation";
 import bcrypt from "bcryptjs";
@@ -11,7 +11,7 @@ import { eq } from "drizzle-orm";
 export async function updatePasswordAction(formData: FormData) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    console.error(password);
+    //console.error(password);
 
     if (!email || !password) {
         return { error: "Input is empty." }
@@ -37,7 +37,7 @@ export async function updatePasswordAction(formData: FormData) {
 
                 else {
                     // delete cookie-> hashPass-> store in db
-                    await deleteForgotPasswordSession();
+                    await deleteOTPSession();
                     const hashedPassword = await bcrypt.hash(password, 10);
                     const db = getDb();
                     await db.

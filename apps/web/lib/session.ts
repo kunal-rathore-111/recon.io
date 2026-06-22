@@ -7,9 +7,12 @@ import { cookies } from "next/headers";
 interface jwtInput {
     email: string,
     userId: string,
-    name: string
+    name: string,
+    image?: string
 }
-const jwtSecret = process.env.JWT_SECRET || "#!D#G%,kl3I";
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret)
+    throw Error("Please enter JWT_SECRET in env.")
 
 const key = new TextEncoder().encode(jwtSecret);
 
@@ -54,30 +57,48 @@ export async function getSession() {
 }
 
 
-interface createForgotPasswordSessionDTO {
+interface createOTPSessionDTO {
     email: string,
-    otp: string,
+    otp?: string,
+    type: "forgotPassword" | "createAccount"
 }
 
-export async function createForgotPasswordSession(input: createForgotPasswordSessionDTO) {
+
+/* for both forgotPassword and createAccountOTP */
+export async function createOTPSession(input: createOTPSessionDTO) {
     const cookieStore = await cookies();
 
-    const jwtToken = await new SignJWT({ ...input }).setExpirationTime('10m').setProtectedHeader({ alg: "HS256" }).sign(key);
+    const jwtToken = await new SignJWT({ ...input }).setExpirationTime('30m').setProtectedHeader({ alg: "HS256" }).sign(key);
 
     cookieStore.delete('forgotPasswordSession'); // delete previous one if present
 
-    cookieStore.set("forgotPasswordSession", jwtToken, {
-        httpOnly: true,
-        maxAge: 10 * 60, // 10 mints
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-    });
+    cookieStore.delete('createAccountSession'); // delete previous one if present
+
+    cookieStore.set(
+        input.type === "forgotPassword" ?
+            "forgotPasswordSession" : "createAccountSession", jwtToken,
+        {
+            httpOnly: true,
+            maxAge: 30 * 60, // 10 mints
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+        });
     return;
 }
 
+
+export async function deleteOTPSession() {
+    const cookieStore = await cookies();
+    cookieStore.delete("forgotPasswordSession");
+    cookieStore.delete("createAccountSession");
+}
+
+
+
 export async function getForgotPasswordSession() {
     const cookieStore = await cookies();
-    const token = cookieStore.get('forgotPasswordSession')?.value;
+    const token = cookieStore.get(
+        'forgotPasswordSession')?.value;
     if (!token) return null;
     else {
         try {
@@ -89,8 +110,18 @@ export async function getForgotPasswordSession() {
     }
 }
 
-
-export async function deleteForgotPasswordSession() {
+export async function getCreateAccountSession() {
     const cookieStore = await cookies();
-    cookieStore.delete("forgotPasswordSession");
+    const token = cookieStore.get(
+        'createAccountSession')?.value;
+
+    if (!token) return null;
+    else {
+        try {
+            const result = await jwtVerify(token, key);
+            return result.payload;
+        } catch (error) {
+            return null;
+        }
+    }
 }
