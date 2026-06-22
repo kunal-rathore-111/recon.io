@@ -13,13 +13,13 @@ const redis = new Redis({
 
 const authRateLimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(10, '1 m'),
+    limiter: Ratelimit.slidingWindow(100, '1 m'),
     prefix: 'rl:auth'
 })
 
 const otpRateLimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(2, '1 m'),
+    limiter: Ratelimit.slidingWindow(20, '1 m'),
     prefix: 'rl:otp'
 });
 

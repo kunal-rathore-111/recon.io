@@ -1,4 +1,3 @@
-'use server';
 
 import { getReconsAction } from '../actions/getRecons';
 import { DashboardClientComp } from '@/components/Dashboard-ClientComp.tsx/Dashboard-ClientComp';

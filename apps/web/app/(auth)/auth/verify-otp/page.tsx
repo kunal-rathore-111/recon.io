@@ -1,5 +1,4 @@
-
-"use server"
+export const dynamic = "force-dynamic";
 
 import { VerifyOTPComp } from "@/components/verifyOTPComp";
 import { getCreateAccountSession } from "@/lib/session";
