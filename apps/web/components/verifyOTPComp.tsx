@@ -110,6 +110,7 @@ export function VerifyOTPComp({ email }: { email: string }) {
                             <div>
                                 Didn't receive the email?
                                 <Button variant={"link"}
+                                    type="button"
                                     onClick={() => startTransition(resendOTP)}
                                 >Resend Code</Button>
                             </div>
