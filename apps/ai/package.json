@@ -1,12 +1,25 @@
 {
   "name": "ai",
-  "module": "index.ts",
   "type": "module",
   "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "build": "tsc"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "hono": "^4.12.26"
   }
 }
