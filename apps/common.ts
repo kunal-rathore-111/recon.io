@@ -1,1 +1,0 @@
-export const reconTypes = ['E-commerce', 'SaaS/App', 'Blog/News', 'API Endpoint', 'Custom Web'];
