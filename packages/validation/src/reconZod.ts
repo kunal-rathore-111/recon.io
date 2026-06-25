@@ -20,9 +20,3 @@ export const reconSchema = z.object({
 
     intelligenceEnabled: z.boolean()
 });
-
-export type ReconValidationInput = z.infer<typeof reconSchema>;
-
-export function reconValidationFn(props: ReconValidationInput) {
-    return reconSchema.safeParse(props);
-}

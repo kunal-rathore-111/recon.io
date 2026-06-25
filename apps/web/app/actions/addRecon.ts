@@ -3,11 +3,11 @@
 
 import { getSession } from "@/lib/session";
 import { getDb, ReconTable } from "@repo/database";
-import { reconValidationFn } from "@repo/validation";
+import { reconSchema, reconTypes, zodValidator } from "@repo/validation";
 
 
 
-export async function addReconAction(previousState: any, formData: FormData) {
+export async function addReconAction(formData: FormData) {
     const url = formData.get("url") as string;
     const title = formData.get("title") as string;
     const mission = formData.get("mission") as string;
@@ -15,7 +15,7 @@ export async function addReconAction(previousState: any, formData: FormData) {
     const intelligenceEnabled = formData.get("intelligenceEnabled") === "true" ? true : false as boolean;
 
 
-    const validation = reconValidationFn({ url, title, mission, type, intelligenceEnabled })
+    const validation = zodValidator(reconSchema, { url, title, mission, type, intelligenceEnabled })
 
     if (!validation.success) {
         console.error(validation.error.issues[0].message)
@@ -30,6 +30,12 @@ export async function addReconAction(previousState: any, formData: FormData) {
 
         const userId = session.userId as string;
         const db = getDb();
+        // check type 
+        if (!reconTypes.includes(type)) {
+            console.error('Horewerw\n\n\n');
+            return { error: "Invalid category." };
+        }
+
         const storeResponse = await db.insert(ReconTable).values({
             url, title, mission, type, intelligenceEnabled, status, userId
         }).returning();

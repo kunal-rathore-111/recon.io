@@ -16,7 +16,8 @@ import {
   BlocksIcon,
   Newspaper,
   PlugZap,
-  Globe2Icon
+  Globe2Icon,
+  LoaderIcon
 } from 'lucide-react';
 
 import {
@@ -32,35 +33,37 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RootState } from '@/lib/store/store';
 import { setAddReconReducer } from '@/lib/store/features/addRecon/addReconSlice';
-import { FormEvent, startTransition, useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { addReconAction } from '@/app/actions/addRecon';
 import { useRouter } from 'next/navigation';
+import { reconTypes, urlZod, zodValidator } from '@repo/validation';
+import { magicFillResponseType } from '@/app/api/magic-fill/route';
 
 const CATEGORIES = [
-  { id: 'ecommerce', label: 'E-Commerce', icon: ShoppingBag },
-  { id: 'saas', label: 'SaaS / App', icon: BlocksIcon },
-  { id: 'blog', label: 'Blog / News', icon: Newspaper },
-  { id: 'api', label: 'API Endpoint', icon: PlugZap },
-  { id: 'custom', label: 'Custom Web', icon: Globe2Icon }
+  { id: 'E-commerce', label: 'E-Commerce', icon: ShoppingBag },
+  { id: 'SaaS/App', label: 'SaaS / App', icon: BlocksIcon },
+  { id: 'Blog/News', label: 'Blog / News', icon: Newspaper },
+  { id: 'API Endpoint', label: 'API Endpoint', icon: PlugZap },
+  { id: 'Custom Web', label: 'Custom Web', icon: Globe2Icon }
 ];
 
 export function AddReconModal() {
   const dispatch = useDispatch();
   const { addReconState } = useSelector((state: RootState) => state.addRecon);
 
-  // Form states
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
   const [mission, setMission] = useState('');
-  const [type, setType] = useState('custom');
+  const [type, setType] = useState('Custom Web');
   const [intelligenceEnabled, setIntelligenceEnabled] = useState(true);
   const router = useRouter();
   //form state
-  const [state, formAction, isPending] = useActionState(addReconAction, null);
+  const [state, formAction, isPending] = useActionState(handleSubmit, null);
 
+  const [isPendingMagicFill, startTransition] = useTransition();
 
   useEffect(() => {
-    if (!state) return; // initial state, skip
+    if (!state) return;
 
     if (state.error) {
       toast.error(state.error);
@@ -74,7 +77,7 @@ export function AddReconModal() {
       setUrl('');
       setTitle('');
       setMission('');
-      setType('custom');
+      setType('Custom Web');
       setIntelligenceEnabled(true);
       dispatch(setAddReconReducer());
 
@@ -91,32 +94,75 @@ export function AddReconModal() {
       setUrl('');
       setTitle('');
       setMission('');
-      setType('custom');
+      setType('Custom Web');
       setIntelligenceEnabled(true);
     }
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  async function handleSubmit(prevData: any, formData: FormData) {
+
     if (!url) {
       toast.error('Please enter a target URL');
       return;
     }
+    const zodResult = zodValidator(urlZod, { url });
+    if (!zodResult.success) {
+      toast.error(zodResult.error.issues[0].message);
+      return;
+    }
+
     if (!mission) {
       toast.error('Please enter mission / instruction');
       return;
     }
-
-    const formData = new FormData(e.currentTarget);
-    startTransition(() => formAction(formData));
+    if (!reconTypes.includes(type)) {
+      toast.error("Invalid category");
+      return;
+    }
+    else
+      return await addReconAction(formData);
   };
 
+
+  async function handleMagicFill() {
+
+    const zodResult = zodValidator(urlZod, { url });
+    if (!zodResult.success) {
+      toast.error(zodResult.error.issues[0].message);
+      return;
+    }
+    else {
+      // call next server for ai server
+      try {
+        const response = await fetch('/api/magic-fill', {
+          method: "POST",
+          body: JSON.stringify({ url })
+        });
+
+        const data: magicFillResponseType = await response.json();
+
+        if (!data.success) {
+          toast.error(data.error);
+          return;
+        }
+        else {
+          setTitle(data.aiResponse.title);
+          setType(data.aiResponse.category);
+          setMission(data.aiResponse.instructions);
+        }
+
+      } catch (error) {
+        toast.error('Failed to auto-fill. Please try manually.');
+        return;
+      }
+    }
+  }
   return (
     <Dialog open={addReconState} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-border/40 shadow-2xl bg-background/95 backdrop-blur ">
 
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-0">
+        <form action={formAction} className="flex flex-col gap-0">
 
           {/* Header */}
           <DialogHeader className="px-6 pt-6 pb-4   border-b border-border/40 bg-muted/20">
@@ -126,6 +172,7 @@ export function AddReconModal() {
             <DialogDescription className="text-muted-foreground text-xs mt-0.5">
               Set up a website-agnostic AI agent to monitor content, track mutations, and extract intelligence.
             </DialogDescription>
+
           </DialogHeader>
 
           {/* Form Body */}
@@ -133,13 +180,33 @@ export function AddReconModal() {
 
             {/*  URL */}
             <div className="space-y-3">
-              <Label htmlFor="url" className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-1.5">
-                <Globe className="size-4 text-muted-foreground" />
-                Target Web Address
-                <span className="text-red-400">
-                  *
-                </span>
+              <Label htmlFor="url" className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-1.5 justify-between">
+
+                <div className='flex items-center gap-1'>
+                  <Globe className="size-4 text-muted-foreground" />
+                  Target Web Address
+                  <span className="text-red-400">
+                    *
+                  </span>
+                </div>
+
+                {url.length > 0 &&
+                  <Button
+                    type='button'
+                    disabled={isPending || isPendingMagicFill}
+                    onClick={() => {
+                      startTransition(async () => {
+                        await handleMagicFill();
+                      });
+                    }}
+                    variant={"outline"}>
+                    {isPendingMagicFill ?
+                      <LoaderIcon /> :
+                      'Auto-Fill'
+                    }
+                  </Button>}
               </Label>
+
               <div className="relative">
                 <Input
                   id="url"

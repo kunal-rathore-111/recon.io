@@ -3,10 +3,9 @@
 
 import { createOTPSession, createSession, deleteOTPSession, deleteSession } from "@/lib/session";
 import { getDb, forgotPassword_OTP_Table, signUp_OTP_Table, usersTable } from "@repo/database";
-import { signInValidationFn, signUpValidationFn } from "@repo/validation";
+import { signInSchema, signUpSchema, zodValidator } from "@repo/validation";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { X } from "lucide-react";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { sendOTP } from "../services/emailService";
@@ -18,7 +17,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
     const email = formData.get('email') as string;
     const name = formData.get('name') as string;
     const password = formData.get('password') as string;
-    const validation = signUpValidationFn({ email, password, name });
+    const validation = zodValidator(signUpSchema, { email, password, name });
     if (!validation.success) {
         return {
             error: validation.error.issues[0].message
@@ -66,7 +65,7 @@ export async function signInAction(prevState: any, formData: FormData) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const validation = signInValidationFn({
+    const validation = zodValidator(signInSchema, {
         email,
         password
     })

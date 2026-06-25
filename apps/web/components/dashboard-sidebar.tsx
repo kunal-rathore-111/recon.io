@@ -32,6 +32,7 @@ import { setLongSelectedCard } from '@/lib/store/features/ui/uiSlice'
 import { trimString } from './dashboardComps/CardComp'
 import { CollapsibleContent, Collapsible, CollapsibleTrigger } from './ui/collapsible'
 import { Button } from './ui/button'
+import { ReconCategoryType } from '@repo/validation'
 
 interface DashboardSidebarProps {
     recons: reconDataResponseType[];
@@ -74,19 +75,20 @@ export function DashboardSidebar({ recons }: DashboardSidebarProps) {
     }
 
     const reconsByType = {
-        ecommerce: [] as typeof recons,
-        saas: [] as typeof recons,
-        blog: [] as typeof recons,
-        api: [] as typeof recons,
-        custom: [] as typeof recons,
+        "E-commerce": [] as typeof recons,
+        'SaaS/App': [] as typeof recons,
+        "Blog/News": [] as typeof recons,
+        "API Endpoint": [] as typeof recons,
+        "Custom Web": [] as typeof recons,
     }
     // now push based on type
 
     recons.forEach((recon) => {
         const typeKey = recon.type as keyof typeof reconsByType;
+
         if (typeKey in reconsByType) reconsByType[typeKey].push(recon);
-        // if key is something else than 5 then push as custom
-        else reconsByType['custom'].push(recon);
+        // if key is something else than 5 then push as custom web
+        else reconsByType['Custom Web'].push(recon);
     })
 
 
@@ -117,11 +119,11 @@ export function DashboardSidebar({ recons }: DashboardSidebarProps) {
                             <hr />
                             <SidebarContent className='pl-4 mt-5 space-y-3' >
 
-                                <RenderTypesDropDownComp reconsByType={reconsByType} type='ecommerce' Icon={ShoppingBag} />
-                                <RenderTypesDropDownComp reconsByType={reconsByType} type='saas' Icon={Blocks} />
-                                <RenderTypesDropDownComp reconsByType={reconsByType} type='api' Icon={PlugZap} />
-                                <RenderTypesDropDownComp reconsByType={reconsByType} type='blog' Icon={Newspaper} />
-                                <RenderTypesDropDownComp reconsByType={reconsByType} type='custom' Icon={Globe2} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='E-commerce' Icon={ShoppingBag} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='SaaS/App' Icon={Blocks} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='API Endpoint' Icon={PlugZap} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='Blog/News' Icon={Newspaper} />
+                                <RenderTypesDropDownComp reconsByType={reconsByType} type='Custom Web' Icon={Globe2} />
                             </SidebarContent>
                         </SidebarMenu>
                     </SidebarGroupContent>
@@ -134,15 +136,10 @@ export function DashboardSidebar({ recons }: DashboardSidebarProps) {
 
 
 
-interface reconsByTypeInterface {
-    ecommerce: reconDataResponseType[];
-    saas: reconDataResponseType[];
-    blog: reconDataResponseType[];
-    api: reconDataResponseType[];
-    custom: reconDataResponseType[];
-}
+type reconsByTypeInterface = Record<ReconCategoryType, reconDataResponseType[]>
+
 interface RenderTypesDropDownComp {
-    type: "ecommerce" | "saas" | "blog" | "api" | "custom",
+    type: ReconCategoryType,
     reconsByType: reconsByTypeInterface,
     Icon: LucideIcon
 }

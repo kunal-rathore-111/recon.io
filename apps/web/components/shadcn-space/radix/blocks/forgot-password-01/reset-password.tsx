@@ -11,7 +11,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PasswordComponent } from "../../../../PasswordComp";
 import { useActionState, useEffect, useState } from "react";
-import { passwordValidation } from "@repo/validation";
+import { passwordSchema, zodValidator } from "@repo/validation";
 import { toast } from "sonner";
 import { updatePasswordAction } from "@/app/actions/updatePasswordAction";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,7 @@ const ResetPasswordComp = ({ email }: ResetPasswordCompProps) => {
   /* functions */
   async function handleSubmit(prevState: any, formData: FormData) {
     // validate password1 using zod then compare both passwords
-    const validatePassword1 = passwordValidation(password1);
+    const validatePassword1 = zodValidator(passwordSchema, { password: password1 });
     if (!validatePassword1.success) {
       return { error: validatePassword1.error.issues[0].message }
     }

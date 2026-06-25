@@ -2,7 +2,7 @@
 
 import { deleteOTPSession, getForgotPasswordSession } from "@/lib/session";
 import { getDb, usersTable } from "@repo/database";
-import { passwordValidation } from "@repo/validation";
+import { passwordSchema, zodValidator } from "@repo/validation";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
@@ -16,7 +16,7 @@ export async function updatePasswordAction(formData: FormData) {
     if (!email || !password) {
         return { error: "Input is empty." }
     }
-    const validatePassword = passwordValidation(password);
+    const validatePassword = zodValidator(passwordSchema, { password });
     if (!validatePassword.success) {
         return {
             error: validatePassword.error.issues[0].message

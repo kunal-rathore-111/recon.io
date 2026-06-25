@@ -15,7 +15,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ActionState } from "@/lib/type";
-import { ValidateOTP } from "@repo/validation";
+import { OTPZod, zodValidator } from "@repo/validation";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
@@ -76,7 +76,7 @@ const ForgotPasswordComp = () => {
       return await sendOTP(email, 'forgotPassword');
     }
     else { // if above all fails means validate OTP and redirect to update password form
-      const ZodOTPResult = ValidateOTP(OTP);
+      const ZodOTPResult = zodValidator(OTPZod, { otp: OTP });
       if (!ZodOTPResult.success) { // need to update with zod validation
         return { error: ZodOTPResult.error.issues[0].message };
       }

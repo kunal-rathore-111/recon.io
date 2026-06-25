@@ -27,7 +27,7 @@ import { DiscordIcon } from "./animated-icons/DiscordIcon"
 import { HomeThemeButton } from "./homeThemeButton"
 import { Earth } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
-import { passwordValidation } from "@repo/validation"
+import { passwordSchema, zodValidator } from "@repo/validation"
 import { ActionState } from "@/lib/type"
 import Image from "next/image"
 
@@ -141,7 +141,7 @@ function AuthForm({
       toast.error("Passwords do not match");
       return { error: "Passwords do not match" };
     }
-    const validatePassword = passwordValidation(password);
+    const validatePassword = zodValidator(passwordSchema, { password });
     if (!validatePassword.success) {
       toast.error(validatePassword.error.issues[0].message);
       return { error: validatePassword.error.issues[0].message };

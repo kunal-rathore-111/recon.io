@@ -8,7 +8,3 @@ export const passwordSchema = z.object({
         .regex(/[A-Z]/, { message: "Password must include an upper case character" })
         .regex(/[$#@!&^*]/, { message: "Password must include a special case character" })
 });
-
-export function passwordValidation(password: string) {
-    return passwordSchema.safeParse({ password });
-}

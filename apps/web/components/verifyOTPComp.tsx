@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import { sendOTP } from "@/app/services/emailService";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { ValidateOTP } from "@repo/validation";
+import { OTPZod, zodValidator } from "@repo/validation";
 import { validateOTPAction } from "@/app/actions/authActions";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LoaderIcon } from "./animated-icons/LoaderIcon";
@@ -41,7 +41,7 @@ export function VerifyOTPComp({ email }: { email: string }) {
     }
 
     async function handleSubmit(prevState: any, formData: FormData) {
-        const otpValidation = ValidateOTP(otp);
+        const otpValidation = zodValidator(OTPZod, { otp });
         if (!otpValidation.success) {
             toast.error(otpValidation.error.issues[0].message);
             return;

@@ -15,16 +15,3 @@ export const signUpSchema = signInSchema.extend({
         .max(1000, { message: "The length of Full name cannot exceed 1000 characters" })
 })
 
-interface SignInValidationFnInput {
-    email: string, password: string
-}
-export function signInValidationFn(props: SignInValidationFnInput) {
-    return signInSchema.safeParse(props);
-}
-
-interface SignUpValidationFnInput extends SignInValidationFnInput {
-    name: string
-}
-export function signUpValidationFn(props: SignUpValidationFnInput) {
-    return signUpSchema.safeParse(props);
-}
